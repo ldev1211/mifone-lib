@@ -23,7 +23,8 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 }
-
+//configurations.maybeCreate("default")
+//artifacts.add("default", file('linphone-sdk-android-4.4.35.aar'))
 dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.6.1'
@@ -31,8 +32,7 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-
-    implementation files('libs\\linphone-sdk-android-4.4.35.aar')
+    implementation files('libs/linphone-sdk-android-4.4.35.aar')
     implementation 'com.squareup.retrofit2:retrofit:2.3.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
