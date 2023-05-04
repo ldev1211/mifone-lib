@@ -22,6 +22,7 @@ import android.telephony.TelephonyManager;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 
+import com.example.mifone_lib.R;
 import com.example.mifone_lib.config.BuildConfig;
 
 import org.linphone.core.AccountCreator;
@@ -374,7 +375,7 @@ public class MifoneManager implements SensorEventListener {
         mCore.setZrtpSecretsFile(mBasePath + "/zrtp_secrets");
 
         String deviceName = mPrefs.getDeviceName(mContext);
-        String appName = mContext.getResources().getString(vn.mitek.mifone.R.string.user_agent);
+        String appName = "MiFone";
         String androidVersion = BuildConfig.VERSION_NAME;
         String userAgent = appName + "/" + androidVersion + " (" + deviceName + ") ";
 
@@ -382,16 +383,16 @@ public class MifoneManager implements SensorEventListener {
         mCore.setCallLogsDatabasePath(mCallLogDatabaseFile);
         mCore.setFriendsDatabasePath(mFriendsDatabaseFile);
         mCore.setUserCertificatesPath(mUserCertsPath);
-        // mCore.setCallErrorTone(Reason.NotFound, mErrorToneFile);
+//        mCore.setCallErrorTone(Reason.NotFound, mErrorToneFile);
         enableDeviceRingtone(mPrefs.isDeviceRingtoneEnabled());
 
         int availableCores = Runtime.getRuntime().availableProcessors();
         Log.w("[Manager] MediaStreamer : " + availableCores + " cores detected and configured");
 
         mCore.migrateLogsFromRcToDb();
-        String uri = getString(vn.mitek.mifone.R.string.default_conference_factory_uri);
+        String uri = "https:mifone.vn";
         for (ProxyConfig lpc : mCore.getProxyConfigList()) {
-            if (lpc.getIdentityAddress().getDomain().equals(getString(vn.mitek.mifone.R.string.default_domain))) {
+            if (lpc.getIdentityAddress().getDomain().equals("mifone.vn/mitek")) {
                 if (lpc.getConferenceFactoryUri() == null) {
                     lpc.edit();
                     Log.i(
@@ -545,12 +546,12 @@ public class MifoneManager implements SensorEventListener {
 
         String pref = mPrefs.getTunnelMode();
 
-        if (getString(vn.mitek.mifone.R.string.tunnel_mode_entry_value_always).equals(pref)) {
+        if ("always".equals(pref)) {
             return true;
         }
 
         if (info.getType() != ConnectivityManager.TYPE_WIFI
-                && getString(vn.mitek.mifone.R.string.tunnel_mode_entry_value_3G_only).equals(pref)) {
+                && "3G_only".equals(pref)) {
             Log.i("[Manager] Need tunnel: 'no wifi' connection");
             return true;
         }
