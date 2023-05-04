@@ -44,12 +44,28 @@ public class MifoneCore {
     private static final String defaultDomain = "mifone.vn/mitek";
 
     private MifoneCore(User mUser) {
-        this.mUser = mUser;
+        MifoneCore.mUser = mUser;
     }
 
     public static void initMifoneCore(User mUser){
         mInstance = new MifoneCore(mUser);
         iResponseAPIs = Common.getAPIs();
+        mifoneCoreListener = new MifoneCoreListener() {
+            @Override
+            public void onResultConfigAccount(boolean isSuccess, String message) {
+
+            }
+
+            @Override
+            public void onIncomingCall(State state, String message) {
+
+            }
+
+            @Override
+            public void onRegistrationStateChanged(com.example.mifone_lib.model.other.RegistrationState state, String message) {
+
+            }
+        };
         configAccount();
     }
 
@@ -62,7 +78,7 @@ public class MifoneCore {
         return mInstance;
     }
     public void registerListener(MifoneCoreListener mifoneCoreListener){
-        this.mifoneCoreListener = mifoneCoreListener;
+        MifoneCore.mifoneCoreListener = mifoneCoreListener;
         mListener =
                 new CoreListenerStub() {
                     @Override
