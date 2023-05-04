@@ -1,12 +1,12 @@
 package com.example.mifone_lib.listener;
 
-import org.linphone.core.Core;
-import org.linphone.core.ProxyConfig;
-import org.linphone.core.RegistrationState;
+import com.example.mifone_lib.model.other.RegistrationState;
+import com.example.mifone_lib.model.other.State;
+
 
 public interface MifoneCoreListener {
     public void onResultConfigAccount(boolean isSuccess,String message);
-    public void onIncomingCall(org.linphone.core.Call.State state,String message);
-    public void onRegistrationStateChanged(ProxyConfig proxyConfig, RegistrationState state, String message);
-    public void onLogCollectionUploadStateChanged(Core.LogCollectionUploadState state, String info);
+    public void onIncomingCall(State state, String message);
+    public void onRegistrationStateChanged(RegistrationState state, String message);
+//    public void onLogCollectionUploadStateChanged(Core.LogCollectionUploadState state, String info);
 }

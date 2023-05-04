@@ -10,6 +10,7 @@ import com.example.mifone_lib.api.IResponseAPIs;
 import com.example.mifone_lib.listener.MifoneCoreListener;
 import com.example.mifone_lib.model.other.Privileges;
 import com.example.mifone_lib.model.other.ProfileUser;
+import com.example.mifone_lib.model.other.State;
 import com.example.mifone_lib.model.other.UpdateTokenFirebase;
 import com.example.mifone_lib.model.other.User;
 import com.example.mifone_lib.model.response.APIsResponse;
@@ -65,7 +66,8 @@ public class MifoneCore {
                     @Override
                     public void onCallStateChanged(Core core, org.linphone.core.Call call, org.linphone.core.Call.State state, String message) {
                         if (state == org.linphone.core.Call.State.End || state == org.linphone.core.Call.State.Released) {
-                            mifoneCoreListener.onIncomingCall(state,message);
+                            State stateMifone = new State(state);
+                            mifoneCoreListener.onIncomingCall(stateMifone,message);
                         }
                     }
 
@@ -75,7 +77,8 @@ public class MifoneCore {
                             ProxyConfig proxyConfig,
                             RegistrationState state,
                             String message) {
-                        mifoneCoreListener.onRegistrationStateChanged(proxyConfig,state,message);
+                        com.example.mifone_lib.model.other.RegistrationState registrationStateMifone = new com.example.mifone_lib.model.other.RegistrationState(state.toInt());
+                        mifoneCoreListener.onRegistrationStateChanged(registrationStateMifone,message);
 //                        mSideMenuFragment.displayMainAccount();
 //                        if (state == RegistrationState.Ok) {
 //                            DeviceUtils
@@ -101,7 +104,7 @@ public class MifoneCore {
                     @Override
                     public void onLogCollectionUploadStateChanged(
                             Core core, Core.LogCollectionUploadState state, String info) {
-                        mifoneCoreListener.onLogCollectionUploadStateChanged(state,info);
+//                        mifoneCoreListener.onLogCollectionUploadStateChanged(state,info);
 //                        org.linphone.core.tools.Log.d(
 //                                "[Main Activity] Log upload state: "
 //                                        + state.toString()
