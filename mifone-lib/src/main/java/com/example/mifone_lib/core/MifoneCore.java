@@ -37,10 +37,10 @@ import retrofit2.Response;
 
 public class MifoneCore {
     private static MifoneCore mInstance;
-    private User mUser;
-    private CoreListenerStub mListener;
-    private MifoneCoreListener mifoneCoreListener;
-    private IResponseAPIs iResponseAPIs;
+    private static User mUser;
+    private static CoreListenerStub mListener;
+    private static MifoneCoreListener mifoneCoreListener;
+    private static IResponseAPIs iResponseAPIs;
     private static final String defaultDomain = "mifone.vn/mitek";
 
     private MifoneCore(User mUser) {
@@ -49,6 +49,7 @@ public class MifoneCore {
 
     public static void initMifoneCore(User mUser){
         mInstance = new MifoneCore(mUser);
+        configAccount();
     }
 
     public static MifoneCore getInstance(){
@@ -124,7 +125,7 @@ public class MifoneCore {
                     }
                 };
     }
-    private void configAccount(){
+    public static void configAccount(){
         if (mUser==null){
             mifoneCoreListener.onResultConfigAccount(false,"Email and password of user not be configured");
             return;
@@ -164,14 +165,14 @@ public class MifoneCore {
                 });
     }
 
-    private void reloadDefaultAccountCreatorConfig() {
+    private static void reloadDefaultAccountCreatorConfig() {
         org.linphone.core.tools.Log.i("[Assistant] Reloading configuration with default");
         reloadAccountCreatorConfig(MifonePreferences.instance().getDefaultDynamicConfigFile());
     }
-    private AccountCreator getAccountCreator() {
+    private static AccountCreator getAccountCreator() {
         return MifoneManager.getInstance().getAccountCreator();
     }
-    private void reloadAccountCreatorConfig(String path) {
+    private static void reloadAccountCreatorConfig(String path) {
         Core core = MifoneManager.getCore();
         if (core != null) {
             core.loadConfigFromXml(path);
@@ -182,7 +183,7 @@ public class MifoneCore {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private void signIn(APIsResponse result, String secret) {
+    private static void signIn(APIsResponse result, String secret) {
         Core core = MifoneManager.getCore();
         if (core != null) {
             reloadDefaultAccountCreatorConfig();
@@ -202,7 +203,7 @@ public class MifoneCore {
     }
 
 
-    private void createProxyConfigAndLeaveAssistant(boolean isGenericAccount) {
+    private static void createProxyConfigAndLeaveAssistant(boolean isGenericAccount) {
         Core core = MifoneManager.getCore();
         boolean useMiphoneDefaultValues = defaultDomain.equals(getAccountCreator().getDomain());
 
@@ -246,7 +247,7 @@ public class MifoneCore {
 //        goToMifoneActivity();
     }
 
-    private void configureAccountMifone(ProfileUser data, String secret) {
+    private static void configureAccountMifone(ProfileUser data, String secret) {
         Common.curentUser = data;
         AccountCreator accountCreator = getAccountCreator();
         accountCreator.setUsername(data.getExtension());
@@ -276,7 +277,7 @@ public class MifoneCore {
                 });
     }
 
-    private void configMifoneProd(JSONObject json, String secret) {
+    private static void configMifoneProd(JSONObject json, String secret) {
         try {
             JSONObject jsonObject = json.getJSONObject("data");
             ProfileUser dataRes =

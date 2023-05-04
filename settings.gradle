@@ -16,4 +16,3 @@ dependencyResolutionManagement {
 rootProject.name = "MifoneLib"
 include ':app'
 include ':mifone-lib'
-//include ':mifone-lib/configAar'
