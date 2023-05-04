@@ -49,6 +49,7 @@ public class MifoneCore {
 
     public static void initMifoneCore(User mUser){
         mInstance = new MifoneCore(mUser);
+        iResponseAPIs = Common.getAPIs();
         configAccount();
     }
 
