@@ -50,23 +50,6 @@ public class MifoneCore {
     public static void initMifoneCore(User mUser){
         mInstance = new MifoneCore(mUser);
         iResponseAPIs = Common.getAPIs();
-        mifoneCoreListener = new MifoneCoreListener() {
-            @Override
-            public void onResultConfigAccount(boolean isSuccess, String message) {
-
-            }
-
-            @Override
-            public void onIncomingCall(State state, String message) {
-
-            }
-
-            @Override
-            public void onRegistrationStateChanged(com.example.mifone_lib.model.other.RegistrationState state, String message) {
-
-            }
-        };
-        configAccount();
     }
 
     public static MifoneCore getInstance(){
