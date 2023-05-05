@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.provider.ContactsContract;
 
+import com.example.mifone_lib.config.AppConfig;
 import com.example.mifone_lib.model.other.ProfileUser;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -18,7 +19,7 @@ public class SharePrefUtils {
     private static SharedPreferences pref;
 
     private SharePrefUtils() {
-//        pref = AppConfig.getContext().getSharedPreferences("Database", Context.MODE_PRIVATE);
+        pref = AppConfig.getContext().getSharedPreferences("Database", Context.MODE_PRIVATE);
     }
 
     public static SharePrefUtils getInstance() {
