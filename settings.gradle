@@ -3,9 +3,11 @@ pluginManagement {
         gradlePluginPortal()
         google()
         mavenCentral()
+        maven { url "https://dl.bintray.com/saghul/maven" }
+        maven { url 'https://jitpack.io' }
+        maven { url "https://linphone.org/releases/maven_repository/android" }
     }
 }
-
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
