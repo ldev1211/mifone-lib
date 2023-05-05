@@ -1,0 +1,8 @@
+java:
+  - openjdk8
+
+before_script:
+  - chmod +x gradlew
+
+script:
+  - ./gradlew clean build
