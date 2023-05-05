@@ -5,6 +5,8 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
+import com.example.mifone_lib.R;
+
 import org.linphone.core.Call;
 import org.linphone.core.ConfiguringState;
 import org.linphone.core.Core;
@@ -68,7 +70,7 @@ public class MifoneContext {
         MifonePreferences.instance().setContext(context);
         Factory.instance().setLogCollectionPath(context.getFilesDir().getAbsolutePath());
         boolean isDebugEnabled = MifonePreferences.instance().isDebugEnabled();
-//        MifoneUtils.configureLoggingService(isDebugEnabled, context.getString(vn.mitek.mifone.R.string.app_name));
+        MifoneUtils.configureLoggingService(isDebugEnabled, context.getString(R.string.app_name));
 
         dumpDeviceInformation();
         dumpLinphoneInformation();

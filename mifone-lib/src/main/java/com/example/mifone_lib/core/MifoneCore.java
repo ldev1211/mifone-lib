@@ -1,5 +1,7 @@
 package com.example.mifone_lib.core;
 
+import android.app.Application;
+import android.content.Context;
 import android.os.Build;
 import android.util.Log;
 
@@ -15,6 +17,7 @@ import com.example.mifone_lib.model.other.UpdateTokenFirebase;
 import com.example.mifone_lib.model.other.User;
 import com.example.mifone_lib.model.response.APIsResponse;
 import com.example.mifone_lib.util.DecodeAssistant;
+import com.example.mifone_lib.util.MifoneContext;
 import com.example.mifone_lib.util.MifoneManager;
 import com.example.mifone_lib.util.MifonePreferences;
 import com.example.mifone_lib.util.SharePrefUtils;
@@ -24,6 +27,7 @@ import org.json.JSONObject;
 import org.linphone.core.AccountCreator;
 import org.linphone.core.Core;
 import org.linphone.core.CoreListenerStub;
+import org.linphone.core.GlobalState;
 import org.linphone.core.ProxyConfig;
 import org.linphone.core.RegistrationState;
 import org.linphone.core.TransportType;
@@ -41,15 +45,18 @@ public class MifoneCore {
     private static CoreListenerStub mListener;
     private static MifoneCoreListener mifoneCoreListener;
     private static IResponseAPIs iResponseAPIs;
+    private static Context mContext;
     private static final String defaultDomain = "mifone.vn/mitek";
 
     private MifoneCore(User mUser) {
         MifoneCore.mUser = mUser;
     }
 
-    public static void initMifoneCore(User mUser){
+    public static void initMifoneCore(User mUser, Context context){
         mInstance = new MifoneCore(mUser);
         iResponseAPIs = Common.getAPIs();
+        mContext = context;
+        new MifoneContext(mContext);
     }
 
     public static MifoneCore getInstance(){
@@ -80,48 +87,11 @@ public class MifoneCore {
                             String message) {
                         com.example.mifone_lib.model.other.RegistrationState registrationStateMifone = new com.example.mifone_lib.model.other.RegistrationState(state.toInt());
                         mifoneCoreListener.onRegistrationStateChanged(registrationStateMifone,message);
-//                        mSideMenuFragment.displayMainAccount();
-//                        if (state == RegistrationState.Ok) {
-//                            DeviceUtils
-//                                    .displayDialogIfDeviceHasPowerManagerThatCouldPreventPushNotifications(
-//                                            MainActivity.this);
-//
-//                            if (getResources().getBoolean(vn.mitek.mifone.R.bool.use_phone_number_validation)) {
-//                                AuthInfo authInfo =
-//                                        core.findAuthInfo(
-//                                                proxyConfig.getRealm(),
-//                                                proxyConfig.getIdentityAddress().getUsername(),
-//                                                proxyConfig.getDomain());
-//                                if (authInfo != null
-//                                        && authInfo.getDomain()
-//                                        .equals(getString(vn.mitek.mifone.R.string.default_domain))) {
-//                                    vn.mitek.mifone.MifoneManager.getInstance().isAccountWithAlias();
-//                                }
-//                            }
-//                            core.setNetworkReachable(true);
-//                        }
                     }
 
                     @Override
-                    public void onLogCollectionUploadStateChanged(
-                            Core core, Core.LogCollectionUploadState state, String info) {
-//                        mifoneCoreListener.onLogCollectionUploadStateChanged(state,info);
-//                        org.linphone.core.tools.Log.d(
-//                                "[Main Activity] Log upload state: "
-//                                        + state.toString()
-//                                        + ", info = "
-//                                        + info);
-//                        if (state == Core.LogCollectionUploadState.Delivered) {
-//                            ClipboardManager clipboard =
-//                                    (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-//                            ClipData clip = ClipData.newPlainText("Logs url", info);
-//                            clipboard.setPrimaryClip(clip);
-//                            Toast.makeText(
-//                                    MainActivity.this,
-//                                    getString(vn.mitek.mifone.R.string.logs_url_copied_to_clipboard),
-//                                    Toast.LENGTH_SHORT)
-//                                    .show();
-//                        }
+                    public void onLogCollectionUploadStateChanged(Core core, Core.LogCollectionUploadState state, String info) {
+
                     }
                 };
     }
