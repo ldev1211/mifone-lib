@@ -49,7 +49,7 @@ android {
         exclude 'lib/x86_64/libcardioRecognizer_tegra2.so'
         exclude 'lib/x86_64/libopencv_core.so'
         exclude 'lib/x86_64/libopencv_imgproc.so'
-        pickFirst 'lib/x86/libc++_shared.so'
+        pickFirst 'lib/*/libc++_shared.so'
         pickFirst 'lib/x86_64/libjsc.so'
         pickFirst 'lib/arm64-v8a/libjsc.so'
         pickFirst 'lib/arm64-v8a/libc++_shared.so'
