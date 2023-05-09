@@ -9,8 +9,12 @@ android {
         targetSdk 33
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
+        ndk {
+            abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+        }
         externalNativeBuild {
             cmake {
+                cppFlags "-std=c++14 -fexceptions -frtti"
                 arguments "-DANDROID_STL=c++_shared"
             }
         }
@@ -50,11 +54,12 @@ android {
         exclude 'lib/x86_64/libopencv_core.so'
         exclude 'lib/x86_64/libopencv_imgproc.so'
         pickFirst 'lib/*/libc++_shared.so'
+        pickFirst 'lib/x86/libc++_shared.so'
         pickFirst 'lib/x86_64/libjsc.so'
         pickFirst 'lib/arm64-v8a/libjsc.so'
-        pickFirst 'lib/arm64-v8a/libc++_shared.so'
-        pickFirst 'lib/x86_64/libc++_shared.so'
-        pickFirst 'lib/armeabi-v7a/libc++_shared.so'
+        pickFirst 'lib/x86/libc++_shared.so'
+        pickFirst 'lib/x86/libc++_shared.so'
+        pickFirst 'lib/x86/libc++_shared.so'
         pickFirst 'META-INF/NOTICE'
         pickFirst 'META-INF/LICENSE'
         exclude 'META-INF/DEPENDENCIES.txt'
@@ -65,12 +70,13 @@ android {
 
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.6.1'
+//    implementation 'androidx.appcompat:appcompat:1.1.0'
     testImplementation 'junit:junit:4.13.2'
+//    implementation 'com.google.android.material:material:1.8.0'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-    implementation files('libs/linphone-sdk-android-4.4.35.jar')
     implementation 'com.squareup.retrofit2:retrofit:2.3.0'
+    implementation 'org.linphone:linphone-sdk-android:4.4.35'
     implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
 }

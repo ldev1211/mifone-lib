@@ -3,7 +3,7 @@ package com.example.mifone_lib.util;
 import android.os.Build;
 import android.util.Log;
 
-import androidx.annotation.RequiresApi;
+//import androidx.annotation.RequiresApi;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,7 +18,7 @@ public class DecodeAssistant {
         this.dataHashed = dataHashed;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
+//    @RequiresApi(api = Build.VERSION_CODES.O)
     public JSONObject decodeDataAssistant(){
         try {
 

@@ -19,8 +19,8 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyCallback;
 import android.telephony.TelephonyManager;
 
-import androidx.annotation.RequiresApi;
-import androidx.core.content.ContextCompat;
+//import androidx.annotation.RequiresApi;
+//import androidx.core.content.ContextCompat;
 
 import com.example.mifone_lib.R;
 import com.example.mifone_lib.config.BuildConfig;
@@ -63,7 +63,7 @@ public class MifoneManager implements SensorEventListener {
     private Timer mTimer, mAutoAnswerTimer;
     private BroadcastReceiver mCallReceiver;
     private final MifonePreferences mPrefs;
-    private Core mCore;
+    public static Core mCore;
     private CoreListenerStub mCoreListener;
     private AccountCreator mAccountCreator;
     private AccountCreatorListenerStub mAccountCreatorListener;
@@ -74,7 +74,7 @@ public class MifoneManager implements SensorEventListener {
     private boolean mHasLastCallSasBeenRejected;
     private Runnable mIterateRunnable;
 
-    @RequiresApi(api = Build.VERSION_CODES.S)
+//    @RequiresApi(api = Build.VERSION_CODES.S)
     class MyCallStateListener extends TelephonyCallback implements TelephonyCallback.CallStateListener{
         @Override
         public void onCallStateChanged(int state) {
@@ -95,15 +95,14 @@ public class MifoneManager implements SensorEventListener {
             }
         }
     }
-
     public void registerListenPhoneState(Context c){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
         {
-            if(ContextCompat.checkSelfPermission(c, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED){
-                myCallStateListener = new MyCallStateListener();
-                mTelephonyManager.registerTelephonyCallback(c.getMainExecutor(), myCallStateListener);
-                android.util.Log.d("TAG", "MifoneManager: registed");
-            }
+//            if(ContextCompat.checkSelfPermission(c, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED){
+//                myCallStateListener = new MyCallStateListener();
+//                mTelephonyManager.registerTelephonyCallback(c.getMainExecutor(), myCallStateListener);
+//                android.util.Log.d("TAG", "MifoneManager: registed");
+//            }
         } else {
             mPhoneStateListener =
                     new PhoneStateListener() {//For Android 10 or lower
@@ -158,72 +157,72 @@ public class MifoneManager implements SensorEventListener {
 //        }
 //
 //        mMediaScanner = new MediaScanner(c);
-        mCoreListener =
-                new CoreListenerStub() {
-                    @SuppressLint("Wakelock")
-                    @Override
-                    public void onCallStateChanged(
-                            final Core core,
-                            final Call call,
-                            final Call.State state,
-                            final String message) {
-                        Log.i("[Manager] Call state is [", state, "]");
-                        if (state == Call.State.IncomingReceived
-                                && !call.equals(core.getCurrentCall())) {
-                            if (call.getReplacedCall() != null) {
-                                return;
-                            }
-                        }
-
-                        if ((state == Call.State.IncomingReceived || state == Call.State.IncomingEarlyMedia)
-                                && getCallGsmON()) {
-                            if (mCore != null) {
-                                call.decline(Reason.Busy);
-                            }
-                        } else if (state == Call.State.IncomingReceived
-                                && (MifonePreferences.instance().isAutoAnswerEnabled())
-                                && !getCallGsmON()) {
-//                            MifoneUtils.dispatchOnUIThreadAfter(
-//                                    () -> {
-//                                        if (mCore != null) {
-//                                            if (mCore.getCallsNb() > 0) {
-//                                                mCallManager.acceptCall(call);
-//                                                mAudioManager.routeAudioToEarPiece();
-//                                            }
-//                                        }
-//                                    },
-//                                    mPrefs.getAutoAnswerTime());
-                        } else if (state == Call.State.End || state == Call.State.Error) {
-                            if (mCore.getCallsNb() == 0) {
-                                enableProximitySensing(false);
-                            }
-                        } else if (state == Call.State.UpdatedByRemote) {
-                            boolean remoteVideo = call.getRemoteParams().videoEnabled();
-                            boolean localVideo = call.getCurrentParams().videoEnabled();
-                            boolean autoAcceptCameraPolicy =
-                                    MifonePreferences.instance()
-                                            .shouldAutomaticallyAcceptVideoRequests();
-                            if (remoteVideo
-                                    && !localVideo
-                                    && !autoAcceptCameraPolicy
-                                    && mCore.getConference() == null) {
-                                call.deferUpdate();
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onFriendListCreated(Core core, FriendList list) {
-//                        if (MifoneContext.isReady()) {
-//                            list.addListener(ContactsManager.getInstance());
+//        mCoreListener =
+//                new CoreListenerStub() {
+//                    @SuppressLint("Wakelock")
+//                    @Override
+//                    public void onCallStateChanged(
+//                            final Core core,
+//                            final Call call,
+//                            final Call.State state,
+//                            final String message) {
+//                        Log.i("[Manager] Call state is [", state, "]");
+//                        if (state == Call.State.IncomingReceived
+//                                && !call.equals(core.getCurrentCall())) {
+//                            if (call.getReplacedCall() != null) {
+//                                return;
+//                            }
 //                        }
-                    }
-
-                    @Override
-                    public void onFriendListRemoved(Core core, FriendList list) {
-//                        list.removeListener(ContactsManager.getInstance());
-                    }
-                };
+//
+//                        if ((state == Call.State.IncomingReceived || state == Call.State.IncomingEarlyMedia)
+//                                && getCallGsmON()) {
+//                            if (mCore != null) {
+//                                call.decline(Reason.Busy);
+//                            }
+//                        } else if (state == Call.State.IncomingReceived
+//                                && (MifonePreferences.instance().isAutoAnswerEnabled())
+//                                && !getCallGsmON()) {
+////                            MifoneUtils.dispatchOnUIThreadAfter(
+////                                    () -> {
+////                                        if (mCore != null) {
+////                                            if (mCore.getCallsNb() > 0) {
+////                                                mCallManager.acceptCall(call);
+////                                                mAudioManager.routeAudioToEarPiece();
+////                                            }
+////                                        }
+////                                    },
+////                                    mPrefs.getAutoAnswerTime());
+//                        } else if (state == Call.State.End || state == Call.State.Error) {
+//                            if (mCore.getCallsNb() == 0) {
+//                                enableProximitySensing(false);
+//                            }
+//                        } else if (state == Call.State.UpdatedByRemote) {
+//                            boolean remoteVideo = call.getRemoteParams().videoEnabled();
+//                            boolean localVideo = call.getCurrentParams().videoEnabled();
+//                            boolean autoAcceptCameraPolicy =
+//                                    MifonePreferences.instance()
+//                                            .shouldAutomaticallyAcceptVideoRequests();
+//                            if (remoteVideo
+//                                    && !localVideo
+//                                    && !autoAcceptCameraPolicy
+//                                    && mCore.getConference() == null) {
+//                                call.deferUpdate();
+//                            }
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onFriendListCreated(Core core, FriendList list) {
+////                        if (MifoneContext.isReady()) {
+////                            list.addListener(ContactsManager.getInstance());
+////                        }
+//                    }
+//
+//                    @Override
+//                    public void onFriendListRemoved(Core core, FriendList list) {
+////                        list.removeListener(ContactsManager.getInstance());
+//                    }
+//                };
     }
 
     public static synchronized MifoneManager getInstance() {
@@ -461,8 +460,9 @@ public class MifoneManager implements SensorEventListener {
 
     public AccountCreator getAccountCreator() {
         if (mAccountCreator == null) {
-            Log.w("[Manager] Account creator shouldn't be null !");
-            mAccountCreator = mCore.createAccountCreator(null);
+//            Log.w("[Manager] Account creator shouldn't be null !");
+//            mAccountCreator = mCore.createAccountCreator(null);
+            mAccountCreator = mCore.createAccountCreator(MifonePreferences.instance().getXmlrpcUrl());
             mAccountCreator.addListener(mAccountCreatorListener);
         }
         return mAccountCreator;

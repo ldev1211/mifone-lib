@@ -5,10 +5,12 @@ buildscript {
     repositories {
         google()
         mavenCentral()
-        maven { url "https://dl.bintray.com/saghul/maven" }
+        maven { url "https://maven.google.com"}
         maven { url 'https://jitpack.io' }
+        maven {url "https://linphone.org/maven_repository"}
     }
     dependencies {
+//        classpath 'org.linephone:linphone-sdk-android:4.4.35@aar'
         classpath 'com.android.tools.build:gradle:4.2.2'
     }
 }

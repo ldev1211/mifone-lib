@@ -1,12 +1,15 @@
 package com.example.mifone_lib.core;
 
-import android.app.Application;
+import static android.content.Intent.ACTION_MAIN;
+
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
 
-import androidx.annotation.RequiresApi;
+//import androidx.annotation.RequiresApi;
 
+import com.example.mifone_lib.R;
 import com.example.mifone_lib.api.Common;
 import com.example.mifone_lib.api.IResponseAPIs;
 import com.example.mifone_lib.listener.MifoneCoreListener;
@@ -20,18 +23,23 @@ import com.example.mifone_lib.util.DecodeAssistant;
 import com.example.mifone_lib.util.MifoneContext;
 import com.example.mifone_lib.util.MifoneManager;
 import com.example.mifone_lib.util.MifonePreferences;
+import com.example.mifone_lib.util.MifoneUtils;
 import com.example.mifone_lib.util.SharePrefUtils;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.linphone.core.AccountCreator;
+import org.linphone.core.ConfiguringState;
 import org.linphone.core.Core;
+import org.linphone.core.CoreListener;
 import org.linphone.core.CoreListenerStub;
+import org.linphone.core.Factory;
 import org.linphone.core.GlobalState;
 import org.linphone.core.ProxyConfig;
 import org.linphone.core.RegistrationState;
 import org.linphone.core.TransportType;
+import org.linphone.mediastream.Version;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -56,7 +64,14 @@ public class MifoneCore {
         mInstance = new MifoneCore(mUser);
         iResponseAPIs = Common.getAPIs();
         mContext = context;
+        MifonePreferences.instance().setContext(context);
         new MifoneContext(mContext);
+        MifoneManager.mCore =
+                Factory.instance()
+                        .createCore(
+                                MifonePreferences.getMifoneDefaultConfig(),
+                                MifonePreferences.getMifoneFactoryConfig(),
+                                mContext);
     }
 
     public static MifoneCore getInstance(){
@@ -67,15 +82,23 @@ public class MifoneCore {
 
         return mInstance;
     }
+
     public void registerListener(MifoneCoreListener mifoneCoreListener){
         MifoneCore.mifoneCoreListener = mifoneCoreListener;
         mListener =
                 new CoreListenerStub() {
                     @Override
+                    public void onGlobalStateChanged(Core lc, GlobalState gstate, String message) {
+                        super.onGlobalStateChanged(lc, gstate, message);
+//                        mifoneCoreListener.onGlobalStateChanged(gstate,message);
+                    }
+
+                    @Override
                     public void onCallStateChanged(Core core, org.linphone.core.Call call, org.linphone.core.Call.State state, String message) {
+                        Log.d("TAG", "onCallStateChanged: hiiii");
                         if (state == org.linphone.core.Call.State.End || state == org.linphone.core.Call.State.Released) {
                             State stateMifone = new State(state);
-                            mifoneCoreListener.onIncomingCall(stateMifone,message);
+                            MifoneCore.mifoneCoreListener.onIncomingCall(stateMifone,message);
                         }
                     }
 
@@ -86,7 +109,7 @@ public class MifoneCore {
                             RegistrationState state,
                             String message) {
                         com.example.mifone_lib.model.other.RegistrationState registrationStateMifone = new com.example.mifone_lib.model.other.RegistrationState(state.toInt());
-                        mifoneCoreListener.onRegistrationStateChanged(registrationStateMifone,message);
+                        MifoneCore.mifoneCoreListener.onRegistrationStateChanged(registrationStateMifone,message);
                     }
 
                     @Override
@@ -94,6 +117,8 @@ public class MifoneCore {
 
                     }
                 };
+        MifoneManager.mCore.addListener(mListener);
+        MifoneManager.mCore.start();
     }
     public static void configAccount(){
         if (mUser==null){
@@ -106,7 +131,7 @@ public class MifoneCore {
         }
         iResponseAPIs.isLoginData(mUser.getUsername(), mUser.getPassword(), mUser.getType())
                 .enqueue(new Callback<APIsResponse>() {
-                    @RequiresApi(api = Build.VERSION_CODES.O)
+//                    @RequiresApi(api = Build.VERSION_CODES.O)
                     @Override
                     public void onResponse(Call<APIsResponse> call, Response<APIsResponse> response) {
                         APIsResponse result = response.body();
@@ -119,6 +144,7 @@ public class MifoneCore {
                                 String user_log_id = result.getUser_log_id();
                                 List<Privileges> arrayPrivileges = result.getPrivileges();
                                 mifoneCoreListener.onResultConfigAccount(true,"Config Successful!");
+                                mListener.onRegistrationStateChanged(null,null,RegistrationState.Ok,"Register state: Successfull");
                             } else {
                                 mifoneCoreListener.onResultConfigAccount(false,"Username and Password are wrong! Please check again");
                             }
@@ -152,9 +178,9 @@ public class MifoneCore {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
+//    @RequiresApi(api = Build.VERSION_CODES.O)
     private static void signIn(APIsResponse result, String secret) {
-        Core core = MifoneManager.getCore();
+        Core core = MifoneManager.mCore;
         if (core != null) {
             reloadDefaultAccountCreatorConfig();
         }

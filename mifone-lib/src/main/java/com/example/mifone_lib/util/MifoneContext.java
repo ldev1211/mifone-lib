@@ -3,7 +3,7 @@ package com.example.mifone_lib.util;
 import android.content.Context;
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
+//import androidx.annotation.RequiresApi;
 
 import com.example.mifone_lib.R;
 
@@ -76,96 +76,7 @@ public class MifoneContext {
         dumpLinphoneInformation();
 
         sInstance = this;
-        Log.i("[Context] Ready");
-
-        mListener =
-                new CoreListenerStub() {
-                    @Override
-                    public void onGlobalStateChanged(Core core, GlobalState state, String message) {
-                        Log.i("[Context] Global state is [", state, "]");
-
-                        if (state == GlobalState.On) {
-                            for (CoreStartedListener listener : mCoreStartedListeners) {
-                                listener.onCoreStarted();
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onConfiguringStatus(
-                            Core core, ConfiguringState status, String message) {
-                        Log.i("[Context] Configuring state is [", status, "]");
-
-                        if (status == ConfiguringState.Successful) {
-                            MifonePreferences.instance()
-                                    .setPushNotificationEnabled(
-                                            MifonePreferences.instance()
-                                                    .isPushNotificationEnabled());
-                        }
-                    }
-
-                    @RequiresApi(api = Build.VERSION_CODES.N)
-                    @Override
-                    public void onCallStateChanged(
-                            Core core, Call call, Call.State state, String message) {
-//                        Log.i("[Context] Call state is [", state, "]");
-//
-//                        if (mContext.getResources().getBoolean(vn.mitek.mifone.R.bool.enable_call_notification)) {
-//                            mNotificationManager.displayCallNotification(call);
-//                        }
-//
-//                        if (state == Call.State.IncomingReceived
-//                                || state == Call.State.IncomingEarlyMedia) {
-//                            // Starting SDK 24 (Android 7.0) we rely on the fullscreen intent of the
-//                            // call incoming notification
-//                            if (Version.sdkStrictlyBelow(Version.API24_NOUGAT_70)) {
-//                                if (!mMifoneManager.getCallGsmON()) onIncomingReceived();
-//                            }
-//
-//                            // In case of push notification Service won't be started until here
-//                            if (!MifoneService.isReady()) {
-//                                Log.i("[Context] Service not running, starting it");
-//                                Intent intent = new Intent(ACTION_MAIN);
-//                                intent.setClass(mContext, MifoneService.class);
-//                                mContext.startService(intent);
-//                            }
-//                        } else if (state == Call.State.OutgoingInit) {
-//                            onOutgoingStarted();
-//                        } else if (state == Call.State.Connected) {
-//                            onCallStarted();
-//                        } else if (state == Call.State.End
-//                                || state == Call.State.Released
-//                                || state == Call.State.Error) {
-//                            if (MifoneService.isReady()) {
-//                                MifoneService.instance().destroyOverlay();
-//                            }
-//
-//                            if (state == Call.State.Released
-//                                    && call.getCallLog().getStatus() == Call.Status.Missed) {
-//                                mNotificationManager.displayMissedCallNotification(call);
-//                            }
-//                        }
-                    }
-                };
-
         mMifoneManager = new MifoneManager(context);
-//        mNotificationManager = new NotificationsManager(context);
-
-//        if (DeviceUtils.isAppUserRestricted(mContext)) {
-//            // See https://firebase.google.com/docs/cloud-messaging/android/receive#restricted
-//            Log.w("[Context] Device has been restricted by user (Android 9+), push notifications won't work !");
-//        }
-
-//        int bucket = DeviceUtils.getAppStandbyBucket(mContext);
-//        if (bucket > 0) {
-//            Log.w(
-//                    "[Context] Device is in bucket "
-//                            + Compatibility.getAppStandbyBucketNameFromValue(bucket));
-//        }
-//
-//        if (!PushNotificationUtils.isAvailable(mContext)) {
-//            Log.w("[Context] Push notifications won't work !");
-//        }
     }
 
     public void start(boolean isPush) {

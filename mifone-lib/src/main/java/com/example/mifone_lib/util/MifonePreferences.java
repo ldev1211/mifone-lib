@@ -3,10 +3,6 @@ package com.example.mifone_lib.util;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
-
-import androidx.appcompat.app.AppCompatDelegate;
-import androidx.appcompat.resources.Compatibility;
 
 import com.example.mifone_lib.R;
 import com.example.mifone_lib.api.Common;
@@ -46,7 +42,7 @@ import retrofit2.Response;
 
 public class MifonePreferences {
     private static final int LINPHONE_CORE_RANDOM_PORT = -1;
-    private static final String LINPHONE_DEFAULT_RC = "/.linphonerc";
+    private static final String LINPHONE_DEFAULT_RC = "/linphonerc";
     private static final String LINPHONE_FACTORY_RC = "/linphonerc";
     private static final String LINPHONE_LPCONFIG_XSD = "/lpconfig.xsd";
     private static final String DEFAULT_ASSISTANT_RC = "/default_assistant_create.rc";
@@ -54,7 +50,7 @@ public class MifonePreferences {
     private static MifonePreferences sInstance;
     private IResponseAPIs mService;
     private Context mContext;
-    private String mBasePath;
+    private static String mBasePath;
     // Tunnel settings
     private TunnelConfig mTunnelConfig = null;
 
@@ -75,6 +71,7 @@ public class MifonePreferences {
     public void setContext(Context c) {
         mContext = c;
         mBasePath = mContext.getFilesDir().getAbsolutePath();
+        android.util.Log.d("BasePath", "setContext: "+mBasePath);
         try {
             copyAssetsFromPackage();
         } catch (IOException ioe) {
@@ -85,15 +82,15 @@ public class MifonePreferences {
     /* Assets stuff */
 
     private void copyAssetsFromPackage() throws IOException {
-//        copyIfNotExist(R.raw.linphonerc_default, getMifoneDefaultConfig());
-//        copyFromPackage(R.raw.linphonerc_factory, new File(getMifoneFactoryConfig()).getName());
-//        copyIfNotExist(R.raw.lpconfig, mBasePath + LINPHONE_LPCONFIG_XSD);
-//        copyFromPackage(
-//                R.raw.default_assistant_create,
-//                new File(mBasePath + DEFAULT_ASSISTANT_RC).getName());
-//        copyFromPackage(
-//                R.raw.linphone_assistant_create,
-//                new File(mBasePath + LINPHONE_ASSISTANT_RC).getName());
+        copyIfNotExist(R.raw.linphonerc_default, getMifoneDefaultConfig());
+        copyFromPackage(R.raw.linphonerc_factory, new File(getMifoneFactoryConfig()).getName());
+        copyIfNotExist(R.raw.lpconfig, mBasePath + LINPHONE_LPCONFIG_XSD);
+        copyFromPackage(
+                R.raw.default_assistant_create,
+                new File(mBasePath + DEFAULT_ASSISTANT_RC).getName());
+        copyFromPackage(
+                R.raw.linphone_assistant_create,
+                new File(mBasePath + LINPHONE_ASSISTANT_RC).getName());
     }
 
     private void copyIfNotExist(int ressourceId, String target) throws IOException {
@@ -116,11 +113,11 @@ public class MifonePreferences {
         lInputStream.close();
     }
 
-    public String getMifoneDefaultConfig() {
+    public static String getMifoneDefaultConfig() {
         return mBasePath + LINPHONE_DEFAULT_RC;
     }
 
-    public String getMifoneFactoryConfig() {
+    public static String getMifoneFactoryConfig() {
         return mBasePath + LINPHONE_FACTORY_RC;
     }
 
@@ -152,30 +149,30 @@ public class MifonePreferences {
             return core.getConfig();
         }
 
-//        if (!MifoneContext.isReady()) {
-//            File linphonerc = new File(mBasePath + "/.linphonerc");
-//            if (linphonerc.exists()) {
-//                return Factory.instance().createConfig(linphonerc.getAbsolutePath());
-//            } else if (mContext != null) {
-//                InputStream inputStream =
-//                        mContext.getResources().openRawResource(R.raw.linphonerc_default);
-//                InputStreamReader inputreader = new InputStreamReader(inputStream);
-//                BufferedReader buffreader = new BufferedReader(inputreader);
-//                StringBuilder text = new StringBuilder();
-//                String line;
-//                try {
-//                    while ((line = buffreader.readLine()) != null) {
-//                        text.append(line);
-//                        text.append('\n');
-//                    }
-//                } catch (IOException ioe) {
-//                    Log.e(ioe);
-//                }
-//                return Factory.instance().createConfigFromString(text.toString());
-//            }
-//        } else {
-//            return Factory.instance().createConfig(getMifoneDefaultConfig());
-//        }
+        if (!MifoneContext.isReady()) {
+            File linphonerc = new File(mBasePath + "/.linphonerc");
+            if (linphonerc.exists()) {
+                return Factory.instance().createConfig(linphonerc.getAbsolutePath());
+            } else if (mContext != null) {
+                InputStream inputStream =
+                        mContext.getResources().openRawResource(R.raw.linphonerc_default);
+                InputStreamReader inputreader = new InputStreamReader(inputStream);
+                BufferedReader buffreader = new BufferedReader(inputreader);
+                StringBuilder text = new StringBuilder();
+                String line;
+                try {
+                    while ((line = buffreader.readLine()) != null) {
+                        text.append(line);
+                        text.append('\n');
+                    }
+                } catch (IOException ioe) {
+                    Log.e(ioe);
+                }
+                return Factory.instance().createConfigFromString(text.toString());
+            }
+        } else {
+            return Factory.instance().createConfig(getMifoneDefaultConfig());
+        }
         return null;
     }
 
