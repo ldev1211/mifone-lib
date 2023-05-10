@@ -11,8 +11,8 @@ public final class MifoneUtils {
 
     public static void configureLoggingService(boolean isDebugEnabled, String appName) {
         if (!MifonePreferences.instance().useJavaLogger()) {
-//            Factory.instance().enableLogCollection(LogCollectionState.Enabled);
-//            Factory.instance().setDebugMode(isDebugEnabled, appName);
+            Factory.instance().enableLogCollection(LogCollectionState.Enabled);
+            Factory.instance().setDebugMode(isDebugEnabled, appName);
         } else {
             Factory.instance().setDebugMode(isDebugEnabled, appName);
             Factory.instance()

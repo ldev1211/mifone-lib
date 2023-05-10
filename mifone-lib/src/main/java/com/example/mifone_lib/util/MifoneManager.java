@@ -19,22 +19,17 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyCallback;
 import android.telephony.TelephonyManager;
 
-//import androidx.annotation.RequiresApi;
-//import androidx.core.content.ContextCompat;
-
-import com.example.mifone_lib.R;
+import androidx.annotation.RequiresApi;
 import com.example.mifone_lib.config.BuildConfig;
+import com.example.mifone_lib.model.other.ConfigMifoneCore;
 
 import org.linphone.core.AccountCreator;
 import org.linphone.core.AccountCreatorListenerStub;
-import org.linphone.core.Call;
 import org.linphone.core.Core;
 import org.linphone.core.CoreListener;
 import org.linphone.core.CoreListenerStub;
 import org.linphone.core.Factory;
-import org.linphone.core.FriendList;
 import org.linphone.core.ProxyConfig;
-import org.linphone.core.Reason;
 import org.linphone.core.tools.Log;
 
 import java.sql.Timestamp;
@@ -74,7 +69,7 @@ public class MifoneManager implements SensorEventListener {
     private boolean mHasLastCallSasBeenRejected;
     private Runnable mIterateRunnable;
 
-//    @RequiresApi(api = Build.VERSION_CODES.S)
+    @RequiresApi(api = Build.VERSION_CODES.S)
     class MyCallStateListener extends TelephonyCallback implements TelephonyCallback.CallStateListener{
         @Override
         public void onCallStateChanged(int state) {

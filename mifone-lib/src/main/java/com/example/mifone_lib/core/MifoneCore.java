@@ -2,6 +2,11 @@ package com.example.mifone_lib.core;
 
 import static android.content.Intent.ACTION_MAIN;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -9,61 +14,65 @@ import android.util.Log;
 
 //import androidx.annotation.RequiresApi;
 
+import androidx.annotation.RequiresApi;
+
 import com.example.mifone_lib.R;
 import com.example.mifone_lib.api.Common;
 import com.example.mifone_lib.api.IResponseAPIs;
 import com.example.mifone_lib.listener.MifoneCoreListener;
+import com.example.mifone_lib.model.other.ConfigMifoneCore;
 import com.example.mifone_lib.model.other.Privileges;
 import com.example.mifone_lib.model.other.ProfileUser;
 import com.example.mifone_lib.model.other.State;
 import com.example.mifone_lib.model.other.UpdateTokenFirebase;
 import com.example.mifone_lib.model.other.User;
 import com.example.mifone_lib.model.response.APIsResponse;
+import com.example.mifone_lib.receiver.MyAlarmReceiver;
 import com.example.mifone_lib.util.DecodeAssistant;
 import com.example.mifone_lib.util.MifoneContext;
 import com.example.mifone_lib.util.MifoneManager;
 import com.example.mifone_lib.util.MifonePreferences;
-import com.example.mifone_lib.util.MifoneUtils;
 import com.example.mifone_lib.util.SharePrefUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.linphone.core.AccountCreator;
-import org.linphone.core.ConfiguringState;
 import org.linphone.core.Core;
-import org.linphone.core.CoreListener;
 import org.linphone.core.CoreListenerStub;
 import org.linphone.core.Factory;
 import org.linphone.core.GlobalState;
 import org.linphone.core.ProxyConfig;
 import org.linphone.core.RegistrationState;
 import org.linphone.core.TransportType;
-import org.linphone.mediastream.Version;
-
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MifoneCore {
     private static MifoneCore mInstance;
-    private static User mUser;
     private static CoreListenerStub mListener;
     private static MifoneCoreListener mifoneCoreListener;
     private static IResponseAPIs iResponseAPIs;
     private static Context mContext;
+    private static User mUser;
+    private static ConfigMifoneCore mConfigMifoneCore;
     private static final String defaultDomain = "mifone.vn/mitek";
 
-    private MifoneCore(User mUser) {
-        MifoneCore.mUser = mUser;
+    private MifoneCore(ConfigMifoneCore configMifoneCore) {
+        mUser = new User("luongdien1211","Luongdien1211@","sf");
+        mConfigMifoneCore = configMifoneCore;
     }
 
-    public static void initMifoneCore(User mUser, Context context){
-        mInstance = new MifoneCore(mUser);
+    public static void initMifoneCore(ConfigMifoneCore configMifoneCore, Context context){
+        mInstance = new MifoneCore(configMifoneCore);
         iResponseAPIs = Common.getAPIs();
         mContext = context;
+        Intent intent = new Intent(context, MyAlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, 0, intent, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        long timeInMillis = System.currentTimeMillis() + mConfigMifoneCore.getExpire() * 1000;
+        alarmManager.set(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
         MifonePreferences.instance().setContext(context);
         new MifoneContext(mContext);
         MifoneManager.mCore =
@@ -131,7 +140,7 @@ public class MifoneCore {
         }
         iResponseAPIs.isLoginData(mUser.getUsername(), mUser.getPassword(), mUser.getType())
                 .enqueue(new Callback<APIsResponse>() {
-//                    @RequiresApi(api = Build.VERSION_CODES.O)
+                    @RequiresApi(api = Build.VERSION_CODES.O)
                     @Override
                     public void onResponse(Call<APIsResponse> call, Response<APIsResponse> response) {
                         APIsResponse result = response.body();
@@ -178,7 +187,7 @@ public class MifoneCore {
         }
     }
 
-//    @RequiresApi(api = Build.VERSION_CODES.O)
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private static void signIn(APIsResponse result, String secret) {
         Core core = MifoneManager.mCore;
         if (core != null) {
