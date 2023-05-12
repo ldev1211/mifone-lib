@@ -36,13 +36,29 @@ import com.example.mifone_lib.util.SharePrefUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.linphone.core.AccountCreator;
+import org.linphone.core.AccountCreatorListener;
+import org.linphone.core.AuthInfo;
+import org.linphone.core.AuthMethod;
+import org.linphone.core.CallLog;
+import org.linphone.core.CallStats;
+import org.linphone.core.ConfiguringState;
 import org.linphone.core.Core;
+import org.linphone.core.CoreListener;
 import org.linphone.core.CoreListenerStub;
+import org.linphone.core.Event;
 import org.linphone.core.Factory;
 import org.linphone.core.GlobalState;
 import org.linphone.core.ProxyConfig;
+import org.linphone.core.PublishState;
 import org.linphone.core.RegistrationState;
 import org.linphone.core.TransportType;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Locale;
 import retrofit2.Call;
@@ -58,9 +74,10 @@ public class MifoneCore {
     private static User mUser;
     private static ConfigMifoneCore mConfigMifoneCore;
     private static final String defaultDomain = "mifone.vn/mitek";
-
+    public static final String TAG = "DEBUGLISTENER";
     private MifoneCore(ConfigMifoneCore configMifoneCore) {
-        mUser = new User("luongdien1211","Luongdien1211@","sf");
+//        mUser = new User("hieu@mitek2020.vn","Hieu@mitek2020.vn","sf");
+        mUser = new User("luongdien1211@gmail.com","Luongdien1211@","sf");
         mConfigMifoneCore = configMifoneCore;
     }
 
@@ -68,43 +85,49 @@ public class MifoneCore {
         mInstance = new MifoneCore(configMifoneCore);
         iResponseAPIs = Common.getAPIs();
         mContext = context;
-        Intent intent = new Intent(context, MyAlarmReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, 0, intent, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        long timeInMillis = System.currentTimeMillis() + mConfigMifoneCore.getExpire() * 1000;
-        alarmManager.set(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
-        MifonePreferences.instance().setContext(context);
         new MifoneContext(mContext);
-        MifoneManager.mCore =
-                Factory.instance()
-                        .createCore(
-                                MifonePreferences.getMifoneDefaultConfig(),
-                                MifonePreferences.getMifoneFactoryConfig(),
-                                mContext);
-    }
+        mListener = new CoreListenerStub() {
 
-    public static MifoneCore getInstance(){
-        if(mInstance==null){
-            Log.e("[Mifone Core]", "Mifone core not initialized");
-            return null;
-        }
+                    @Override
+                    public void onCallLogUpdated(Core lc, CallLog newcl) {
+                        super.onCallLogUpdated(lc, newcl);
+                        Log.d(TAG, "onCallLogUpdated: "+newcl.getErrorInfo());
+                    }
 
-        return mInstance;
-    }
+                    @Override
+                    public void onAuthenticationRequested(Core lc, AuthInfo authInfo, AuthMethod method) {
+                        super.onAuthenticationRequested(lc, authInfo, method);
+                        Log.d(TAG, "onAuthenticationRequested: "+method.toInt());
+                    }
 
-    public void registerListener(MifoneCoreListener mifoneCoreListener){
-        MifoneCore.mifoneCoreListener = mifoneCoreListener;
-        mListener =
-                new CoreListenerStub() {
+                    @Override
+                    public void onCallStatsUpdated(Core lc, org.linphone.core.Call call, CallStats stats) {
+                        super.onCallStatsUpdated(lc, call, stats);
+                        Log.d(TAG, "onCallStatsUpdated: "+stats);
+                    }
+
+                    @Override
+                    public void onConfiguringStatus(Core lc, ConfiguringState status, String message) {
+                        super.onConfiguringStatus(lc, status, message);
+                        Log.d(TAG, "onConfiguringStatus: "+message);
+                    }
+
+                    @Override
+                    public void onPublishStateChanged(Core lc, Event lev, PublishState state) {
+                        super.onPublishStateChanged(lc, lev, state);
+                        Log.d(TAG, "onPublishStateChanged: "+state.toInt());
+                    }
+
                     @Override
                     public void onGlobalStateChanged(Core lc, GlobalState gstate, String message) {
                         super.onGlobalStateChanged(lc, gstate, message);
+                        Log.d(TAG, "onGlobalStateChanged: "+message);
 //                        mifoneCoreListener.onGlobalStateChanged(gstate,message);
                     }
 
                     @Override
                     public void onCallStateChanged(Core core, org.linphone.core.Call call, org.linphone.core.Call.State state, String message) {
-                        Log.d("TAG", "onCallStateChanged: hiiii");
+                        Log.d(TAG, "onCallStateChanged: hiiii");
                         if (state == org.linphone.core.Call.State.End || state == org.linphone.core.Call.State.Released) {
                             State stateMifone = new State(state);
                             MifoneCore.mifoneCoreListener.onIncomingCall(stateMifone,message);
@@ -112,12 +135,10 @@ public class MifoneCore {
                     }
 
                     @Override
-                    public void onRegistrationStateChanged(
-                            Core core,
-                            ProxyConfig proxyConfig,
-                            RegistrationState state,
-                            String message) {
-                        com.example.mifone_lib.model.other.RegistrationState registrationStateMifone = new com.example.mifone_lib.model.other.RegistrationState(state.toInt());
+                    public void onRegistrationStateChanged(Core lc, ProxyConfig cfg, RegistrationState cstate, String message) {
+                        super.onRegistrationStateChanged(lc, cfg, cstate, message);
+                        Log.d(TAG, "onRegistrationStateChanged: "+message);
+                        com.example.mifone_lib.model.other.RegistrationState registrationStateMifone = new com.example.mifone_lib.model.other.RegistrationState(cstate.toInt());
                         MifoneCore.mifoneCoreListener.onRegistrationStateChanged(registrationStateMifone,message);
                     }
 
@@ -126,8 +147,85 @@ public class MifoneCore {
 
                     }
                 };
-        MifoneManager.mCore.addListener(mListener);
-        MifoneManager.mCore.start();
+        MifoneManager.getInstance().startLibLinphone(true,mListener);
+        Intent intent = new Intent(context, MyAlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, 0, intent, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        long timeInMillis = System.currentTimeMillis() + mConfigMifoneCore.getExpire() * 1000;
+        alarmManager.set(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
+        MifonePreferences.instance().setContext(context);
+    }
+
+    public static MifoneCore getInstance(){
+        if(mInstance==null){
+            Log.e("[Mifone Core]", "Mifone core not initialized");
+            return null;
+        }
+        return mInstance;
+    }
+
+    public void registerListener(MifoneCoreListener mifoneCoreListener){
+        MifoneCore.mifoneCoreListener = mifoneCoreListener;
+//        mListener =
+//                new CoreListenerStub() {
+//                    @Override
+//                    public void onCallLogUpdated(Core lc, CallLog newcl) {
+//                        super.onCallLogUpdated(lc, newcl);
+//                    }
+//
+//                    @Override
+//                    public void onAuthenticationRequested(Core lc, AuthInfo authInfo, AuthMethod method) {
+//                        super.onAuthenticationRequested(lc, authInfo, method);
+//                    }
+//
+//                    @Override
+//                    public void onCallStatsUpdated(Core lc, org.linphone.core.Call call, CallStats stats) {
+//                        super.onCallStatsUpdated(lc, call, stats);
+//                    }
+//
+//                    @Override
+//                    public void onConfiguringStatus(Core lc, ConfiguringState status, String message) {
+//                        super.onConfiguringStatus(lc, status, message);
+//                    }
+//
+//                    @Override
+//                    public void onPublishStateChanged(Core lc, Event lev, PublishState state) {
+//                        super.onPublishStateChanged(lc, lev, state);
+//                    }
+//
+//                    @Override
+//                    public void onGlobalStateChanged(Core lc, GlobalState gstate, String message) {
+//                        super.onGlobalStateChanged(lc, gstate, message);
+//                        Log.d("TAG", "onGlobalStateChanged: "+message);
+////                        mifoneCoreListener.onGlobalStateChanged(gstate,message);
+//                    }
+//
+//                    @Override
+//                    public void onCallStateChanged(Core core, org.linphone.core.Call call, org.linphone.core.Call.State state, String message) {
+//                        Log.d("TAG", "onCallStateChanged: hiiii");
+//                        if (state == org.linphone.core.Call.State.End || state == org.linphone.core.Call.State.Released) {
+//                            State stateMifone = new State(state);
+//                            MifoneCore.mifoneCoreListener.onIncomingCall(stateMifone,message);
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onRegistrationStateChanged(Core lc, ProxyConfig cfg, RegistrationState cstate, String message) {
+//                        super.onRegistrationStateChanged(lc, cfg, cstate, message);
+//                        Log.d("TAG", "onRegistrationStateChanged: 123124124");
+//                        com.example.mifone_lib.model.other.RegistrationState registrationStateMifone = new com.example.mifone_lib.model.other.RegistrationState(cstate.toInt());
+//                        MifoneCore.mifoneCoreListener.onRegistrationStateChanged(registrationStateMifone,message);
+//                    }
+//
+//                    @Override
+//                    public void onLogCollectionUploadStateChanged(Core core, Core.LogCollectionUploadState state, String info) {
+//
+//                    }
+//                };
+//        MifoneManager.getInstance().startLibLinphone(true,mListener);
+//        MifoneManager.mCore.addListener(mListener);
+//        MifoneManager.mCore.addProxyConfig();
+//        MifoneManager.mCore.start();
     }
     public static void configAccount(){
         if (mUser==null){
@@ -153,7 +251,6 @@ public class MifoneCore {
                                 String user_log_id = result.getUser_log_id();
                                 List<Privileges> arrayPrivileges = result.getPrivileges();
                                 mifoneCoreListener.onResultConfigAccount(true,"Config Successful!");
-                                mListener.onRegistrationStateChanged(null,null,RegistrationState.Ok,"Register state: Successfull");
                             } else {
                                 mifoneCoreListener.onResultConfigAccount(false,"Username and Password are wrong! Please check again");
                             }
@@ -178,7 +275,7 @@ public class MifoneCore {
         return MifoneManager.getInstance().getAccountCreator();
     }
     private static void reloadAccountCreatorConfig(String path) {
-        Core core = MifoneManager.getCore();
+        Core core = MifoneManager.mCore;
         if (core != null) {
             core.loadConfigFromXml(path);
             AccountCreator accountCreator = getAccountCreator();
@@ -191,6 +288,7 @@ public class MifoneCore {
     private static void signIn(APIsResponse result, String secret) {
         Core core = MifoneManager.mCore;
         if (core != null) {
+            Log.d("TAG", "signIn: reloaded!@");
             reloadDefaultAccountCreatorConfig();
         }
 
@@ -209,28 +307,25 @@ public class MifoneCore {
 
 
     private static void createProxyConfigAndLeaveAssistant(boolean isGenericAccount) {
-        Core core = MifoneManager.getCore();
         boolean useMiphoneDefaultValues = defaultDomain.equals(getAccountCreator().getDomain());
-
         if (isGenericAccount) {
             if (useMiphoneDefaultValues) {
                 org.linphone.core.tools.Log.i(
                         "[Assistant] Default domain found for generic connection, reloading configuration");
-                core.loadConfigFromXml(MifonePreferences.instance().getMifoneDynamicConfigFile());
+                MifoneManager.mCore.loadConfigFromXml(MifonePreferences.instance().getMifoneDynamicConfigFile());
             } else {
                 org.linphone.core.tools.Log.i("[Assistant] Third party domain found, keeping default values");
             }
         }
-
         String server = Common.curentUser.getProxy() + ":" + Common.curentUser.getPort();
         ProxyConfig proxyConfig = getAccountCreator().createProxyConfig();
-        proxyConfig.setServerAddr(server);
+        Log.d(TAG, "createProxyConfigAndLeaveAssistant: "+proxyConfig.setServerAddr(server));
 
         if (isGenericAccount) {
             if (useMiphoneDefaultValues) {
                 // Restore default values
                 org.linphone.core.tools.Log.i("[Assistant] Restoring default assistant configuration");
-                core.loadConfigFromXml(MifonePreferences.instance().getDefaultDynamicConfigFile());
+                MifoneManager.mCore.loadConfigFromXml(MifonePreferences.instance().getDefaultDynamicConfigFile());
             } else {
 
                 if (proxyConfig != null) {
@@ -244,12 +339,14 @@ public class MifoneCore {
                 proxyConfig.setRoute(mProxy);
             }
         }
-
+        MifoneManager.mCore.addProxyConfig(proxyConfig);
+        MifoneManager.mCore.setDefaultProxyConfig(proxyConfig);
+//        MifoneManager.mCore.start();
+        Log.d(TAG, "createProxyConfigAndLeaveAssistant: started");
         MifonePreferences.instance().firstLaunchSuccessful();
         MifonePreferences.instance()
                 .setPushNotificationEnabled(
                         MifonePreferences.instance().isPushNotificationEnabled());
-//        goToMifoneActivity();
     }
 
     private static void configureAccountMifone(ProfileUser data, String secret) {

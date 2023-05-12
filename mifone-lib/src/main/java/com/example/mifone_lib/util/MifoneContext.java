@@ -79,52 +79,6 @@ public class MifoneContext {
         mMifoneManager = new MifoneManager(context);
     }
 
-    public void start(boolean isPush) {
-        Log.i("[Context] Starting, push status is ", isPush);
-        mMifoneManager.startLibLinphone(isPush, mListener);
-
-//        mNotificationManager.onCoreReady();
-//
-//        mContactsManager = new ContactsManager(mContext);
-//        if (!Version.sdkAboveOrEqual(Version.API26_O_80)
-//                || (mContactsManager.hasReadContactsAccess())) {
-//            mContext.getContentResolver()
-//                    .registerContentObserver(
-//                            ContactsContract.Contacts.CONTENT_URI, true, mContactsManager);
-//        }
-//        if (mContactsManager.hasReadContactsAccess()) {
-//            mContactsManager.enableContactsAccess();
-//        }
-//        mContactsManager.initializeContactManager();
-    }
-
-    public void destroy() {
-        Log.i("[Context] Destroying");
-        Core core = MifoneManager.getCore();
-        if (core != null) {
-            core.removeListener(mListener);
-            core = null; // To allow the gc calls below to free the Core
-        }
-
-//        if (mNotificationManager != null) {
-//            mNotificationManager.destroy();
-//        }
-//
-//        if (mContactsManager != null) {
-//            mContactsManager.destroy();
-//        }
-
-        sInstance = null;
-
-        if (MifonePreferences.instance().useJavaLogger()) {
-            Factory.instance().getLoggingService().removeListener(mJavaLoggingService);
-        }
-    }
-
-    public void updateContext(Context context) {
-        mContext = context;
-    }
-
     public Context getApplicationContext() {
         return mContext;
     }
@@ -142,20 +96,6 @@ public class MifoneContext {
     public MifoneManager getMifoneManager() {
         return mMifoneManager;
     }
-
-//    public ContactsManager getContactsManager() {
-//        return mContactsManager;
-//    }
-
-    public void addCoreStartedListener(CoreStartedListener listener) {
-        mCoreStartedListeners.add(listener);
-    }
-
-    public void removeCoreStartedListener(CoreStartedListener listener) {
-        mCoreStartedListeners.remove(listener);
-    }
-
-    /* Log device related information */
 
     private void dumpDeviceInformation() {
         Log.i("==== Phone information dump ====");

@@ -1,5 +1,7 @@
 package com.example.mifone_lib.util;
 
+import static com.example.mifone_lib.core.MifoneCore.TAG;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
@@ -25,11 +27,14 @@ import com.example.mifone_lib.model.other.ConfigMifoneCore;
 
 import org.linphone.core.AccountCreator;
 import org.linphone.core.AccountCreatorListenerStub;
+import org.linphone.core.Call;
 import org.linphone.core.Core;
 import org.linphone.core.CoreListener;
 import org.linphone.core.CoreListenerStub;
 import org.linphone.core.Factory;
+import org.linphone.core.FriendList;
 import org.linphone.core.ProxyConfig;
+import org.linphone.core.Reason;
 import org.linphone.core.tools.Log;
 
 import java.sql.Timestamp;
@@ -152,72 +157,73 @@ public class MifoneManager implements SensorEventListener {
 //        }
 //
 //        mMediaScanner = new MediaScanner(c);
-//        mCoreListener =
-//                new CoreListenerStub() {
-//                    @SuppressLint("Wakelock")
-//                    @Override
-//                    public void onCallStateChanged(
-//                            final Core core,
-//                            final Call call,
-//                            final Call.State state,
-//                            final String message) {
-//                        Log.i("[Manager] Call state is [", state, "]");
-//                        if (state == Call.State.IncomingReceived
-//                                && !call.equals(core.getCurrentCall())) {
-//                            if (call.getReplacedCall() != null) {
-//                                return;
-//                            }
+        mCoreListener =
+                new CoreListenerStub() {
+                    @SuppressLint("Wakelock")
+                    @Override
+                    public void onCallStateChanged(
+                            final Core core,
+                            final Call call,
+                            final Call.State state,
+                            final String message) {
+                        android.util.Log.d("TAG", "onCallStateChanged: 09");
+                        Log.i("[Manager] Call state is [", state, "]");
+                        if (state == Call.State.IncomingReceived
+                                && !call.equals(core.getCurrentCall())) {
+                            if (call.getReplacedCall() != null) {
+                                return;
+                            }
+                        }
+
+                        if ((state == Call.State.IncomingReceived || state == Call.State.IncomingEarlyMedia)
+                                && getCallGsmON()) {
+                            if (mCore != null) {
+                                call.decline(Reason.Busy);
+                            }
+                        } else if (state == Call.State.IncomingReceived
+                                && (MifonePreferences.instance().isAutoAnswerEnabled())
+                                && !getCallGsmON()) {
+//                            MifoneUtils.dispatchOnUIThreadAfter(
+//                                    () -> {
+//                                        if (mCore != null) {
+//                                            if (mCore.getCallsNb() > 0) {
+//                                                mCallManager.acceptCall(call);
+//                                                mAudioManager.routeAudioToEarPiece();
+//                                            }
+//                                        }
+//                                    },
+//                                    mPrefs.getAutoAnswerTime());
+                        } else if (state == Call.State.End || state == Call.State.Error) {
+                            if (mCore.getCallsNb() == 0) {
+                                enableProximitySensing(false);
+                            }
+                        } else if (state == Call.State.UpdatedByRemote) {
+                            boolean remoteVideo = call.getRemoteParams().videoEnabled();
+                            boolean localVideo = call.getCurrentParams().videoEnabled();
+                            boolean autoAcceptCameraPolicy =
+                                    MifonePreferences.instance()
+                                            .shouldAutomaticallyAcceptVideoRequests();
+                            if (remoteVideo
+                                    && !localVideo
+                                    && !autoAcceptCameraPolicy
+                                    && mCore.getConference() == null) {
+                                call.deferUpdate();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFriendListCreated(Core core, FriendList list) {
+//                        if (MifoneContext.isReady()) {
+//                            list.addListener(ContactsManager.getInstance());
 //                        }
-//
-//                        if ((state == Call.State.IncomingReceived || state == Call.State.IncomingEarlyMedia)
-//                                && getCallGsmON()) {
-//                            if (mCore != null) {
-//                                call.decline(Reason.Busy);
-//                            }
-//                        } else if (state == Call.State.IncomingReceived
-//                                && (MifonePreferences.instance().isAutoAnswerEnabled())
-//                                && !getCallGsmON()) {
-////                            MifoneUtils.dispatchOnUIThreadAfter(
-////                                    () -> {
-////                                        if (mCore != null) {
-////                                            if (mCore.getCallsNb() > 0) {
-////                                                mCallManager.acceptCall(call);
-////                                                mAudioManager.routeAudioToEarPiece();
-////                                            }
-////                                        }
-////                                    },
-////                                    mPrefs.getAutoAnswerTime());
-//                        } else if (state == Call.State.End || state == Call.State.Error) {
-//                            if (mCore.getCallsNb() == 0) {
-//                                enableProximitySensing(false);
-//                            }
-//                        } else if (state == Call.State.UpdatedByRemote) {
-//                            boolean remoteVideo = call.getRemoteParams().videoEnabled();
-//                            boolean localVideo = call.getCurrentParams().videoEnabled();
-//                            boolean autoAcceptCameraPolicy =
-//                                    MifonePreferences.instance()
-//                                            .shouldAutomaticallyAcceptVideoRequests();
-//                            if (remoteVideo
-//                                    && !localVideo
-//                                    && !autoAcceptCameraPolicy
-//                                    && mCore.getConference() == null) {
-//                                call.deferUpdate();
-//                            }
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onFriendListCreated(Core core, FriendList list) {
-////                        if (MifoneContext.isReady()) {
-////                            list.addListener(ContactsManager.getInstance());
-////                        }
-//                    }
-//
-//                    @Override
-//                    public void onFriendListRemoved(Core core, FriendList list) {
-////                        list.removeListener(ContactsManager.getInstance());
-//                    }
-//                };
+                    }
+
+                    @Override
+                    public void onFriendListRemoved(Core core, FriendList list) {
+//                        list.removeListener(ContactsManager.getInstance());
+                    }
+                };
     }
 
     public static synchronized MifoneManager getInstance() {
@@ -233,32 +239,6 @@ public class MifoneManager implements SensorEventListener {
         }
         return manager;
     }
-
-//    public static synchronized AndroidAudioManager getAudioManager() {
-//        return getInstance().mAudioManager;
-//    }
-
-//    public static synchronized CallManager getCallManager() {
-//        return getInstance().mCallManager;
-//    }
-//
-    public static synchronized Core getCore() {
-        if (!MifoneContext.isReady()) return null;
-
-        if (getInstance().mExited) {
-            // Can occur if the UI thread play a posted event but in the meantime the
-            // MifoneManager was destroyed
-            // Ex: stop call and quickly terminate application.
-            return null;
-        }
-        return getInstance().mCore;
-    }
-
-    /* End of static */
-
-//    public MediaScanner getMediaScanner() {
-//        return mMediaScanner;
-//    }
 
     public synchronized void destroy() {
         destroyManager();
@@ -311,23 +291,26 @@ public class MifoneManager implements SensorEventListener {
         }
     }
 
-    public synchronized void startLibLinphone(boolean isPush, CoreListener listener) {
+    public void startLibLinphone(boolean isPush, CoreListenerStub listener) {
         try {
+            android.util.Log.d(TAG, "onCreate: trigger");
             mCore =
                     Factory.instance()
                             .createCore(
                                     mPrefs.getMifoneDefaultConfig(),
                                     mPrefs.getMifoneFactoryConfig(),
+//                                    null,
                                     mContext);
-            mCore.addListener(listener);
+            android.util.Log.d(TAG, "onCreate: created");
+            mCoreListener = listener;
             mCore.addListener(mCoreListener);
-
+            if(mCore == null) android.util.Log.d(TAG, "onCreate: nulllllll");
+            else android.util.Log.d(TAG, "onCreate: not nulllllll");
             if (isPush) {
                 Log.w(
                         "[Manager] We are here because of a received push notification, enter background mode before starting the Core");
                 mCore.enterBackground();
             }
-
             mCore.start();
 
             mIterateRunnable =
@@ -340,7 +323,7 @@ public class MifoneManager implements SensorEventListener {
                     new TimerTask() {
                         @Override
                         public void run() {
-//                            MifoneUtils.dispatchOnUIThread(mIterateRunnable);
+                            MifoneUtils.dispatchOnUIThread(mIterateRunnable);
                         }
                     };
             // use schedule instead of scheduleAtFixedRate to avoid iterate from being call in burst
@@ -377,7 +360,6 @@ public class MifoneManager implements SensorEventListener {
         mCore.setCallLogsDatabasePath(mCallLogDatabaseFile);
         mCore.setFriendsDatabasePath(mFriendsDatabaseFile);
         mCore.setUserCertificatesPath(mUserCertsPath);
-//        mCore.setCallErrorTone(Reason.NotFound, mErrorToneFile);
         enableDeviceRingtone(mPrefs.isDeviceRingtoneEnabled());
 
         int availableCores = Runtime.getRuntime().availableProcessors();
@@ -397,28 +379,14 @@ public class MifoneManager implements SensorEventListener {
                     lpc.setConferenceFactoryUri(uri);
                     lpc.done();
                 }
-
-                /*if (mCore.limeX3DhAvailable()) {
-                    String url = mCore.getLimeX3DhServerUrl();
-                    if (url == null || url.isEmpty()) {
-                        url = getString(R.string.default_lime_x3dh_server_url);
-                        Log.i("[Manager] Setting LIME X3Dh server url to default value: " + url);
-                        mCore.setLimeX3DhServerUrl(url);
-                    }
-                }*/
             }
         }
-
-//        if (mContext.getResources().getBoolean(vn.mitek.mifone.R.bool.enable_push_id)) {
-//            PushNotificationUtils.init(mContext);
-//        }
 
         mProximityWakelock =
                 mPowerManager.newWakeLock(
                         PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK,
                         mContext.getPackageName() + ";manager_proximity_sensor");
 
-        resetCameraFromPreferences();
 
         mAccountCreator = mCore.createAccountCreator(MifonePreferences.instance().getXmlrpcUrl());
         mAccountCreator.addListener(mAccountCreatorListener);
@@ -427,37 +395,13 @@ public class MifoneManager implements SensorEventListener {
         Log.i("[Manager] Core configured");
     }
 
-    public void resetCameraFromPreferences() {
-        Core core = getCore();
-        if (core == null) return;
-
-        boolean useFrontCam = MifonePreferences.instance().useFrontCam();
-        String firstDevice = null;
-        for (String camera : core.getVideoDevicesList()) {
-            if (firstDevice == null) {
-                firstDevice = camera;
-            }
-
-            if (useFrontCam) {
-                if (camera.contains("Front")) {
-                    Log.i("[Manager] Found front facing camera: " + camera);
-                    core.setVideoDevice(camera);
-                    return;
-                }
-            }
-        }
-
-        Log.i("[Manager] Using first camera available: " + firstDevice);
-        core.setVideoDevice(firstDevice);
-    }
-
     /* Account linking */
 
     public AccountCreator getAccountCreator() {
         if (mAccountCreator == null) {
 //            Log.w("[Manager] Account creator shouldn't be null !");
-//            mAccountCreator = mCore.createAccountCreator(null);
-            mAccountCreator = mCore.createAccountCreator(MifonePreferences.instance().getXmlrpcUrl());
+            mAccountCreator = mCore.createAccountCreator(null);
+//            mAccountCreator = mCore.createAccountCreator(MifonePreferences.instance().getXmlrpcUrl());
             mAccountCreator.addListener(mAccountCreatorListener);
         }
         return mAccountCreator;

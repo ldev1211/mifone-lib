@@ -32,4 +32,7 @@ public final class MifoneUtils {
             }
         }
     }
+    public static void dispatchOnUIThread(Runnable r) {
+        sHandler.post(r);
+    }
 }

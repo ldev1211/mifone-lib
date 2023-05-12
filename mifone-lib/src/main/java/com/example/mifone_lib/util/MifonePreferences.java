@@ -4,6 +4,8 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 
+import androidx.appcompat.resources.Compatibility;
+
 import com.example.mifone_lib.R;
 import com.example.mifone_lib.api.Common;
 import com.example.mifone_lib.api.IResponseAPIs;
@@ -31,6 +33,7 @@ import org.linphone.mediastream.Version;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,7 +45,7 @@ import retrofit2.Response;
 
 public class MifonePreferences {
     private static final int LINPHONE_CORE_RANDOM_PORT = -1;
-    private static final String LINPHONE_DEFAULT_RC = "/linphonerc";
+    private static final String LINPHONE_DEFAULT_RC = "/.linphonerc";
     private static final String LINPHONE_FACTORY_RC = "/linphonerc";
     private static final String LINPHONE_LPCONFIG_XSD = "/lpconfig.xsd";
     private static final String DEFAULT_ASSISTANT_RC = "/default_assistant_create.rc";
@@ -71,7 +74,7 @@ public class MifonePreferences {
     public void setContext(Context c) {
         mContext = c;
         mBasePath = mContext.getFilesDir().getAbsolutePath();
-        android.util.Log.d("BasePath", "setContext: "+mBasePath);
+        android.util.Log.d("TAG", "base path: "+mBasePath);
         try {
             copyAssetsFromPackage();
         } catch (IOException ioe) {
@@ -140,7 +143,7 @@ public class MifonePreferences {
     private Core getLc() {
         if (!MifoneContext.isReady()) return null;
 
-        return MifoneManager.getCore();
+        return MifoneManager.mCore;
     }
 
     public Config getConfig() {
@@ -1195,7 +1198,7 @@ public class MifonePreferences {
     }
 
     public String getDeviceName(Context context) {
-        return "Test";
+        return "test";
 //        String defaultValue = Compatibility.getDeviceName(context);
 //        if (getConfig() == null) return defaultValue;
 //        return getConfig().getString("app", "device_name", defaultValue);
@@ -1240,7 +1243,7 @@ public class MifonePreferences {
                                 int code = response.body().getCode();
                                 int account_index = 0;
                                 if (code == 200) {
-                                    Core core = MifoneManager.getCore();
+                                    Core core = MifoneManager.mCore;
                                     ProxyConfig[] proxyConfigs = core.getProxyConfigList();
                                     if (proxyConfigs.length == 0) {
                                         Log.d("TAG");
@@ -1271,7 +1274,7 @@ public class MifonePreferences {
     }
 
     public void deleteAccount(int n) {
-        Core core = MifoneManager.getCore();
+        Core core = MifoneManager.mCore;
         ProxyConfig proxyCfg = getProxyConfig(n);
         AuthInfo authInfo = getAuthInfo(n);
         if (core != null) {
@@ -1307,7 +1310,7 @@ public class MifonePreferences {
     }
 
     private void setProxy() {
-        ProxyConfig proxy = MifoneManager.getCore().getDefaultProxyConfig();
+        ProxyConfig proxy = MifoneManager.mCore.getDefaultProxyConfig();
         String mProxy = proxy.getServerAddr();
         proxy.setRoute(mProxy);
     }
