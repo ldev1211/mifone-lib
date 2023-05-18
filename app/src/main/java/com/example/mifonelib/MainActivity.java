@@ -89,9 +89,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnCancel.setOnClickListener(v -> {
             Factory.cancelCall();
         });
-        ConfigMifoneCore configMifoneCore = new ConfigMifoneCore(5,"","");
-        Factory.createMifoneCore(getApplicationContext(),configMifoneCore);
-        Factory.configCore();
         Factory.registerListener(new MifoneCoreListener() {
             @Override
             public void onResultConfigAccount(boolean isSuccess, String message) {
@@ -123,6 +120,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             }
         });
+        ConfigMifoneCore configMifoneCore = new ConfigMifoneCore(5,"","");
+        Factory.createMifoneCore(getApplicationContext(),configMifoneCore);
+        Factory.configCore();
 //        Factory.getMifoneCore().configMifoneCore();
     }
 

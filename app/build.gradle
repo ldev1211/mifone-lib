@@ -34,7 +34,7 @@ dependencies {
     implementation project(path: ':mifone-lib')
     implementation 'androidx.gridlayout:gridlayout:1.0.0'
     testImplementation 'junit:junit:4.13.2'
-    implementation 'org.linphone:linphone-sdk-android:4.4.35'
+//    implementation 'org.linphone:linphone-sdk-android:4.4.35'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 }
