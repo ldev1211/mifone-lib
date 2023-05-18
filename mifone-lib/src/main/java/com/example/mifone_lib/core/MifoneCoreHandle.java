@@ -183,7 +183,7 @@ public class MifoneCoreHandle{
                                 List<Privileges> arrayPrivileges = result.getPrivileges();
                                 mifoneCoreListener.onResultConfigAccount(true,"Config Successful!");
                             } else {
-                                mifoneCoreListener.onResultConfigAccount(false,"Username and Password are wrong! Please check again, "+mUser.getUsername()+";"+mUser.getPassword());
+                                mifoneCoreListener.onResultConfigAccount(false,"Username and Password are wrong! Please check again, "+result.getMessage());
                             }
                         } else {
                             mifoneCoreListener.onResultConfigAccount(false,"Email or password not precision");
