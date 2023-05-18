@@ -16,7 +16,15 @@
     *;
 }
 
--keep public class com.example.mifone_lib.model.*{
+-keep public class com.example.mifone_lib.model.other.ConfigMifoneCore{
+    *;
+}
+
+-keep public class com.example.mifone_lib.model.other.RegistrationState{
+    *;
+}
+
+-keep public class com.example.mifone_lib.model.other.State{
     *;
 }
 
