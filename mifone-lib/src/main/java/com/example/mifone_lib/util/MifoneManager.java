@@ -1,6 +1,6 @@
 package com.example.mifone_lib.util;
 
-import static com.example.mifone_lib.core.MifoneCore.TAG;
+import static com.example.mifone_lib.core.MifoneCoreHandle.TAG;
 
 import android.Manifest;
 import android.annotation.SuppressLint;

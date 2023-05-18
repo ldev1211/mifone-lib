@@ -13,6 +13,22 @@ public class RegistrationState {
         mValue = value;
     }
 
+    public String toMessage(){
+        switch (mValue){
+            case 0:
+                return "NONE";
+            case 1:
+                return "PROGRESS";
+            case 2:
+                return "OK";
+            case 3:
+                return "CLEARED";
+            case 4:
+                return "FAILED";
+        }
+        return "Invalid";
+    }
+
     public int toInt(){
         return mValue;
     }

@@ -8,8 +8,8 @@
 # If your project uses WebView with JS, uncomment the following
 # and specify the fully qualified class name to the JavaScript interface
 # class:
--keepclassmembers public class *{
-   public *;
+-keep public class com.example.mifone_lib.core.MifoneCoreHandle{
+   *;
 }
 
 # Uncomment this to preserve the line number information for
