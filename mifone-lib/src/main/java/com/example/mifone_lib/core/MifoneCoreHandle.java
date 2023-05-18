@@ -72,149 +72,140 @@ public class MifoneCoreHandle{
     }
 
     public static void initMifoneCore(Context context, ConfigMifoneCore configMifoneCore) {
-        mifoneCore = new MifoneCore() {
+        mInstance = new MifoneCoreHandle(configMifoneCore);
+        iResponseAPIs = Common.getAPIs();
+        mContext = context;
+        new MifoneContext(mContext);
+        mListener = new CoreListenerStub() {
             @Override
-            public void initMifoneCore(Context context, ConfigMifoneCore configMifoneCore) {
-                mInstance = new MifoneCoreHandle(configMifoneCore);
-                iResponseAPIs = Common.getAPIs();
-                mContext = context;
-                new MifoneContext(mContext);
-                mListener = new CoreListenerStub() {
-                    @Override
-                    public void onCallLogUpdated(Core lc, CallLog newcl) {
-                        super.onCallLogUpdated(lc, newcl);
-                        Log.d(TAG, "onCallLogUpdated: "+newcl.getErrorInfo());
-                    }
+            public void onCallLogUpdated(Core lc, CallLog newcl) {
+                super.onCallLogUpdated(lc, newcl);
+                Log.d(TAG, "onCallLogUpdated: "+newcl.getErrorInfo());
+            }
 
-                    @Override
-                    public void onAuthenticationRequested(Core lc, AuthInfo authInfo, AuthMethod method) {
-                        super.onAuthenticationRequested(lc, authInfo, method);
-                        Log.d(TAG, "onAuthenticationRequested: "+method.toInt());
-                    }
+            @Override
+            public void onAuthenticationRequested(Core lc, AuthInfo authInfo, AuthMethod method) {
+                super.onAuthenticationRequested(lc, authInfo, method);
+                Log.d(TAG, "onAuthenticationRequested: "+method.toInt());
+            }
 
-                    @Override
-                    public void onCallStatsUpdated(Core lc, org.linphone.core.Call call, CallStats stats) {
-                        super.onCallStatsUpdated(lc, call, stats);
-                        Log.d(TAG, "onCallStatsUpdated: ");
-                    }
+            @Override
+            public void onCallStatsUpdated(Core lc, org.linphone.core.Call call, CallStats stats) {
+                super.onCallStatsUpdated(lc, call, stats);
+                Log.d(TAG, "onCallStatsUpdated: ");
+            }
 
-                    @Override
-                    public void onConfiguringStatus(Core lc, ConfiguringState status, String message) {
-                        super.onConfiguringStatus(lc, status, message);
-                        Log.d(TAG, "onConfiguringStatus: "+message);
-                    }
+            @Override
+            public void onConfiguringStatus(Core lc, ConfiguringState status, String message) {
+                super.onConfiguringStatus(lc, status, message);
+                Log.d(TAG, "onConfiguringStatus: "+message);
+            }
 
-                    @Override
-                    public void onPublishStateChanged(Core lc, Event lev, PublishState state) {
-                        super.onPublishStateChanged(lc, lev, state);
-                        Log.d(TAG, "onPublishStateChanged: "+state.toInt());
-                    }
+            @Override
+            public void onPublishStateChanged(Core lc, Event lev, PublishState state) {
+                super.onPublishStateChanged(lc, lev, state);
+                Log.d(TAG, "onPublishStateChanged: "+state.toInt());
+            }
 
-                    @Override
-                    public void onGlobalStateChanged(Core lc, GlobalState gstate, String message) {
-                        super.onGlobalStateChanged(lc, gstate, message);
-                        Log.d(TAG, "onGlobalStateChanged: "+message);
+            @Override
+            public void onGlobalStateChanged(Core lc, GlobalState gstate, String message) {
+                super.onGlobalStateChanged(lc, gstate, message);
+                Log.d(TAG, "onGlobalStateChanged: "+message);
 //                        mifoneCoreListener.onGlobalStateChanged(gstate,message);
-                    }
-
-                    @Override
-                    public void onCallStateChanged(Core core, org.linphone.core.Call call, org.linphone.core.Call.State state, String message) {
-                        Log.d(TAG, "onCallStateChanged: "+message);
-                        if (state == org.linphone.core.Call.State.End || state == org.linphone.core.Call.State.Released) {
-                            State stateMifone = new State(state);
-                            MifoneCoreHandle.mifoneCoreListener.onIncomingCall(stateMifone,message);
-                        }
-                    }
-
-                    @Override
-                    public void onRegistrationStateChanged(Core lc, ProxyConfig cfg, RegistrationState cstate, String message) {
-                        super.onRegistrationStateChanged(lc, cfg, cstate, message);
-                        Log.d(TAG, "onRegistrationStateChanged: "+message+", "+cstate);
-                        if(message.equals("Registration successful")){
-
-                        }
-                        com.example.mifone_lib.model.other.RegistrationState registrationStateMifone = new com.example.mifone_lib.model.other.RegistrationState(cstate.toInt());
-                        MifoneCoreHandle.mifoneCoreListener.onRegistrationStateChanged(registrationStateMifone,message);
-                    }
-
-                    @Override
-                    public void onLogCollectionUploadStateChanged(Core core, Core.LogCollectionUploadState state, String info) {
-
-                    }
-                };
-                MifoneManager.getInstance().startLibLinphone(true,mListener);
-                MifoneManager.mCore.enableMic(true);
-                Intent intent = new Intent(context, MyAlarmReceiver.class);
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, 0, intent, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-                AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-                long timeInMillis = System.currentTimeMillis() + mConfigMifoneCore.getExpire() * 1000;
-                alarmManager.set(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
-                MifonePreferences.instance().setContext(context);
             }
 
             @Override
-            public void callOut(String phoneNumber) {
-                Permission permission = new Permission(mContext);
-                if(!permission.checkPermissions(new String[]{Manifest.permission.RECORD_AUDIO})) {
-                    mifoneCoreListener.onError("RECORD_AUDIO permission not granted");
-                    return;
+            public void onCallStateChanged(Core core, org.linphone.core.Call call, org.linphone.core.Call.State state, String message) {
+                Log.d(TAG, "onCallStateChanged: "+message);
+                if (state == org.linphone.core.Call.State.End || state == org.linphone.core.Call.State.Released) {
+                    State stateMifone = new State(state);
+                    MifoneCoreHandle.mifoneCoreListener.onIncomingCall(stateMifone,message);
                 }
-                CallManager callManager = new CallManager(mContext);
-                callManager.newOutgoingCall(phoneNumber);
             }
 
             @Override
-            public void cancelCurrentCall() {
-                CallManager callManager = new CallManager(mContext);
-                callManager.cancelCall();
-            }
+            public void onRegistrationStateChanged(Core lc, ProxyConfig cfg, RegistrationState cstate, String message) {
+                super.onRegistrationStateChanged(lc, cfg, cstate, message);
+                Log.d(TAG, "onRegistrationStateChanged: "+message+", "+cstate);
+                if(message.equals("Registration successful")){
 
-            @Override
-            public void configMifoneCore() {
-                if (mUser==null){
-                    mifoneCoreListener.onResultConfigAccount(false,"Email and password of user not be configured");
-                    return;
                 }
-                if(mInstance==null){
-                    mifoneCoreListener.onResultConfigAccount(false,"MifoneCore not be initialized");
-                    return;
-                }
-                iResponseAPIs.isLoginData(mUser.getUsername(), mUser.getPassword(), mUser.getType())
-                        .enqueue(new Callback<APIsResponse>() {
-                            @RequiresApi(api = Build.VERSION_CODES.O)
-                            @Override
-                            public void onResponse(Call<APIsResponse> call, Response<APIsResponse> response) {
-                                APIsResponse result = response.body();
-                                if (response.isSuccessful()) {
-                                    assert result != null;
-                                    if (result.getCode() == 200) {
-                                        String secret = result.getSecret();
-                                        signIn(result, secret);
-                                        Common.groupId = result.getGroupId();
-                                        String user_log_id = result.getUser_log_id();
-                                        List<Privileges> arrayPrivileges = result.getPrivileges();
-                                        mifoneCoreListener.onResultConfigAccount(true,"Config Successful!");
-                                    } else {
-                                        mifoneCoreListener.onResultConfigAccount(false,"Username and Password are wrong! Please check again");
-                                    }
-                                } else {
-                                    mifoneCoreListener.onResultConfigAccount(false,"Email or password not precision");
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(Call<APIsResponse> call, Throwable t) {
-                                Log.e("Error ", t.getMessage());
-                                mifoneCoreListener.onResultConfigAccount(false,"Login fail. Please try again");
-                            }
-                        });
+                com.example.mifone_lib.model.other.RegistrationState registrationStateMifone = new com.example.mifone_lib.model.other.RegistrationState(cstate.toInt());
+                MifoneCoreHandle.mifoneCoreListener.onRegistrationStateChanged(registrationStateMifone,message);
             }
 
             @Override
-            public void registerListener(MifoneCoreListener mifoneCoreListener) {
-                MifoneCoreHandle.mifoneCoreListener = mifoneCoreListener;
+            public void onLogCollectionUploadStateChanged(Core core, Core.LogCollectionUploadState state, String info) {
+
             }
         };
+        MifoneManager.getInstance().startLibLinphone(true,mListener);
+        MifoneManager.mCore.enableMic(true);
+        Intent intent = new Intent(context, MyAlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, 0, intent, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        long timeInMillis = System.currentTimeMillis() + mConfigMifoneCore.getExpire() * 1000;
+        alarmManager.set(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
+        MifonePreferences.instance().setContext(context);
+    }
+
+    public static void registerListener(MifoneCoreListener mifoneCoreListener){
+        MifoneCoreHandle.mifoneCoreListener = mifoneCoreListener;
+    }
+
+    public static void cancelCall(){
+        CallManager callManager = new CallManager(mContext);
+        callManager.cancelCall();
+    }
+
+    public static void configMIfoneCore(){
+        if (mUser==null){
+            mifoneCoreListener.onResultConfigAccount(false,"Email and password of user not be configured");
+            return;
+        }
+        if(mInstance==null){
+            mifoneCoreListener.onResultConfigAccount(false,"MifoneCore not be initialized");
+            return;
+        }
+        iResponseAPIs.isLoginData(mUser.getUsername(), mUser.getPassword(), mUser.getType())
+                .enqueue(new Callback<APIsResponse>() {
+                    @RequiresApi(api = Build.VERSION_CODES.O)
+                    @Override
+                    public void onResponse(Call<APIsResponse> call, Response<APIsResponse> response) {
+                        APIsResponse result = response.body();
+                        if (response.isSuccessful()) {
+                            assert result != null;
+                            if (result.getCode() == 200) {
+                                String secret = result.getSecret();
+                                signIn(result, secret);
+                                Common.groupId = result.getGroupId();
+                                String user_log_id = result.getUser_log_id();
+                                List<Privileges> arrayPrivileges = result.getPrivileges();
+                                mifoneCoreListener.onResultConfigAccount(true,"Config Successful!");
+                            } else {
+                                mifoneCoreListener.onResultConfigAccount(false,"Username and Password are wrong! Please check again");
+                            }
+                        } else {
+                            mifoneCoreListener.onResultConfigAccount(false,"Email or password not precision");
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<APIsResponse> call, Throwable t) {
+                        Log.e("Error ", t.getMessage());
+                        mifoneCoreListener.onResultConfigAccount(false,"Login fail. Please try again");
+                    }
+                });
+    }
+
+    public static void callOut(String phoneNumber){
+        Permission permission = new Permission(mContext);
+        if(!permission.checkPermissions(new String[]{Manifest.permission.RECORD_AUDIO})) {
+            mifoneCoreListener.onError("RECORD_AUDIO permission not granted");
+            return;
+        }
+        CallManager callManager = new CallManager(mContext);
+        callManager.newOutgoingCall(phoneNumber);
     }
 
     public static MifoneCoreHandle getInstance(){

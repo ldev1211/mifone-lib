@@ -84,14 +84,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         };
         button.setOnClickListener(v -> {
-            core.callOut(editText.getText().toString());
+            Factory.makeCall(editText.getText().toString());
         });
         btnCancel.setOnClickListener(v -> {
-            core.cancelCurrentCall();
+            Factory.cancelCall();
         });
         ConfigMifoneCore configMifoneCore = new ConfigMifoneCore(5,"","");
-        Factory.createCore(getApplicationContext(),configMifoneCore);
-        Factory.getMifoneCore().registerListener(new MifoneCoreListener() {
+        Factory.createMifoneCore(getApplicationContext(),configMifoneCore);
+        Factory.configCore();
+        Factory.registerListener(new MifoneCoreListener() {
             @Override
             public void onResultConfigAccount(boolean isSuccess, String message) {
                 Log.d("TAG", "onResultConfigAccount: "+isSuccess+", message: "+message);
@@ -122,7 +123,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             }
         });
-        Factory.getMifoneCore().configMifoneCore();
+//        Factory.getMifoneCore().configMifoneCore();
     }
 
     @Override

@@ -2,22 +2,28 @@ package com.example.mifone_lib.core;
 
 import android.content.Context;
 
+import com.example.mifone_lib.listener.MifoneCoreListener;
 import com.example.mifone_lib.model.other.ConfigMifoneCore;
 
 public class Factory {
-    private static MifoneCoreHandle mifoneCoreHandle;
-    private static Factory mInstance;
-    private static MifoneCore mifoneCore;
-    public Factory() {
-    }
-    public static void createCore(Context context, ConfigMifoneCore configMifoneCore){
+
+    public static void createMifoneCore(Context context, ConfigMifoneCore configMifoneCore){
         MifoneCoreHandle.initMifoneCore(context,configMifoneCore);
     }
-    public static Factory getInstance(){
-        if(mInstance==null) mInstance = new Factory();
-        return mInstance;
+
+    public static void registerListener(MifoneCoreListener mifoneCoreListener){
+        MifoneCoreHandle.registerListener(mifoneCoreListener);
     }
-    public static MifoneCore getMifoneCore(){
-        return MifoneCoreHandle.getMifoneCore();
+
+    public static void configCore(){
+        MifoneCoreHandle.configMIfoneCore();
+    }
+
+    public static void makeCall(String numberPhone){
+        MifoneCoreHandle.callOut(numberPhone);
+    }
+
+    public static void cancelCall(){
+        MifoneCoreHandle.cancelCall();
     }
 }
