@@ -12,6 +12,10 @@
    *;
 }
 
+-keep public class com.example.mifone_lib.model.other.ConfigMifoneCore{
+    *;
+}
+
 # Uncomment this to preserve the line number information for
 # debugging stack traces.
 #-keepattributes SourceFile,LineNumberTable
