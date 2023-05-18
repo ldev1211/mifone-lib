@@ -12,7 +12,11 @@
    *;
 }
 
--keep public class com.example.mifone_lib.model.other.ConfigMifoneCore{
+-keep public interface com.example.mifone_lib.listener.MifoneCoreListener{
+    *;
+}
+
+-keep public class com.example.mifone_lib.model.*{
     *;
 }
 

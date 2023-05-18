@@ -158,7 +158,7 @@ public class MifoneCoreHandle{
         callManager.cancelCall();
     }
 
-    public static void configMIfoneCore(){
+    public static void configMifoneCore(){
         if (mUser==null){
             mifoneCoreListener.onResultConfigAccount(false,"Email and password of user not be configured");
             return;

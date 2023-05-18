@@ -16,7 +16,7 @@ public class Factory {
     }
 
     public static void configCore(){
-        MifoneCoreHandle.configMIfoneCore();
+        MifoneCoreHandle.configMifoneCore();
     }
 
     public static void makeCall(String numberPhone){
