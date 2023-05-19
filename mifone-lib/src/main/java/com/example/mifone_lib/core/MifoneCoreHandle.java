@@ -175,7 +175,7 @@ public class MifoneCoreHandle{
                         APIsResponse result = response.body();
                         if (response.isSuccessful()) {
                             assert result != null;
-                            Log.d(TAG, "res code: "+result.getCode());
+                            Log.d(TAG, "res code: "+result.toString());
                             if (result.getCode() == 200) {
                                 String secret = result.getSecret();
                                 signIn(result, secret);

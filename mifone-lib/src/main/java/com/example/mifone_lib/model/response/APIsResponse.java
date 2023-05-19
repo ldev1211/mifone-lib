@@ -16,6 +16,19 @@ public class APIsResponse {
     @SerializedName("privileges")
     private List<Privileges> privileges;
 
+    @Override
+    public String toString() {
+        return "APIsResponse{" +
+                "code=" + code +
+                ", message='" + message + '\'' +
+                ", data='" + data + '\'' +
+                ", groupId='" + groupId + '\'' +
+                ", user_log_id='" + user_log_id + '\'' +
+                ", secret='" + secret + '\'' +
+                ", privileges=" + privileges +
+                '}';
+    }
+
     public APIsResponse(
             int code,
             String message,
