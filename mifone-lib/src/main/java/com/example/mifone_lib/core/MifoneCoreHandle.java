@@ -173,6 +173,7 @@ public class MifoneCoreHandle{
                     @Override
                     public void onResponse(Call<APIsResponse> call, Response<APIsResponse> response) {
                         APIsResponse result = response.body();
+                        Log.d(TAG, "onResponse: "+response.toString());
                         if (response.isSuccessful()) {
                             assert result != null;
                             if (result.getCode() == 200) {
