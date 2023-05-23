@@ -120,6 +120,22 @@ public class MifoneCoreHandle{
                 if (state == org.linphone.core.Call.State.End || state == org.linphone.core.Call.State.Released) {
                     State stateMifone = new State(state);
                     MifoneCoreHandle.mifoneCoreListener.onIncomingCall(stateMifone,message);
+                } else if (call.getState() == org.linphone.core.Call.State.IncomingReceived
+                        || call.getState() == org.linphone.core.Call.State.IncomingEarlyMedia) {
+                    Log.d(TAG, "onCallStateChanged: incoming call!!");
+                    // Starting SDK 24 (Android 7.0) we rely on the fullscreen intent of the
+                    // call incoming notification
+//                    if (Version.sdkStrictlyBelow(Version.API24_NOUGAT_70)) {
+//                        if (!mMifoneManager.getCallGsmON()) onIncomingReceived();
+//                    }
+
+                    // In case of push notification Service won't be started until here
+//                    if (!MifoneService.isReady()) {
+//                        org.linphone.core.tools.Log.i("[Context] Service not running, starting it");
+//                        Intent intent = new Intent(ACTION_MAIN);
+//                        intent.setClass(mContext, MifoneService.class);
+//                        mContext.startService(intent);
+//                    }
                 }
             }
 

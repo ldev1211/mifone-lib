@@ -123,7 +123,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ConfigMifoneCore configMifoneCore = new ConfigMifoneCore(5,"","");
         Factory.createMifoneCore(getApplicationContext(),configMifoneCore);
         Factory.configCore();
-//        Factory.getMifoneCore().configMifoneCore();
     }
 
     @Override
